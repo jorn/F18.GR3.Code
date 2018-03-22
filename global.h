@@ -21,7 +21,7 @@
 /***************************** Include files *******************************/
 
 /*****************************    Defines    *******************************/
-#define CPU_F                 16000000      // Current MCU clock speed
+#define CPU_F                 80000000      // Current MCU clock speed
 #define MS_PER_TICK           1             // Millisec per Ticks
 #define CPU_MULTIPLEX         80            // CPU cycles per microsec
 

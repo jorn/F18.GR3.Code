@@ -157,6 +157,56 @@ void delay_init()
   TIMER2_TAMR_R = 0x01;
 }
 
+void set_80Mhz_clock()
+/*****************************************************************************
+ *   Input    : -
+ *   Output   : -
+ *   Function : Set the processor frequency to 80Mhz
+ ******************************************************************************/
+{
+  INT32U reg;
+
+  // Enable the use of RCC2
+  SYSCTL_RCC2_R |= SYSCTL_RCC2_USERCC2;     // Set USERCC2
+
+  // Bypass PLL ans system clock divider
+  SYSCTL_RCC_R |= SYSCTL_RCC_BYPASS;        // Set Bypass on RCC
+  SYSCTL_RCC2_R |= SYSCTL_RCC2_BYPASS2;     // Set Bypass on RCC2
+  SYSCTL_RCC_R &= ~SYSCTL_RCC_USESYSDIV;    // Clear USESYS
+
+  // Set XTAL to 16Mhz
+  reg = SYSCTL_RCC_R;
+  reg &= ~(0b11111<<6);
+  reg |= SYSCTL_RCC_XTAL_16MHZ;
+  SYSCTL_RCC_R = reg;
+
+  // Set Oscillator Source OSCSRC
+  SYSCTL_RCC2_R &= ~0b1110000;  // Set MOSC
+
+  // Clear the PWRDN
+  SYSCTL_RCC2_R &= ~SYSCTL_RCC2_PWRDN2;
+
+
+  // Set DIV400 bit
+  SYSCTL_RCC2_R |= SYSCTL_RCC2_DIV400;
+
+  // Set system divider SYSDIV to 0x2 and SSYSDIV2LSB to 0
+  reg = SYSCTL_RCC2_R;
+  reg &= ~(0b1111111<<22);
+  reg |= (0b100<<22);
+  SYSCTL_RCC2_R = reg;
+
+  // Enable the new divider by setting USESYS
+  SYSCTL_RCC_R |= SYSCTL_RCC_USESYSDIV;    // Set USESYS
+
+  // Wait for PLL lock, value=1 when PLL is locked
+  while( !(SYSCTL_RIS_R & SYSCTL_RIS_PLLLRIS) );
+
+  // Enable PLL
+  SYSCTL_RCC2_R &= ~SYSCTL_RCC2_BYPASS2;  // Clear Bypass2
+
+}
+
 void hardware_init()
 /*****************************************************************************
  *   Header description
@@ -164,6 +214,8 @@ void hardware_init()
 {
   // disable global interrupt
   disable_global_int();
+
+  set_80Mhz_clock();
 
   delay_init();
 
@@ -174,11 +226,6 @@ void hardware_init()
 
   // Enable global interrupt
   enable_global_int();
-
-
-
-
-
 }
 
 /****************************** End Of Module *******************************/
