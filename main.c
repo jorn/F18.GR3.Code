@@ -32,7 +32,6 @@
 #define HIGH_PRIO 3
 
 /*****************************   Variables   *******************************/
-extern INT16U ticks; // sysTick
 
 /*****************************   Functions   *******************************/
 
@@ -56,7 +55,7 @@ void emp_board_alive(void *pvParameters)
   while(1)
   {
     emp_toggle_status_led();
-    vTaskDelay(250);
+    vTaskDelay(500);
   }
 }
 
@@ -85,5 +84,17 @@ int main(void)
   // Will only get here, if there was insufficient memory.
   // -----------------------------------------------------
   return 1;
+}
+
+void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
+{
+  ( void ) pcTaskName;
+  ( void ) pxTask;
+
+  /* Run time stack overflow checking is performed if
+  configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
+  function is called if a stack overflow is detected. */
+  taskDISABLE_INTERRUPTS();
+  for( ;; );
 }
 /****************************** End Of Module *******************************/
