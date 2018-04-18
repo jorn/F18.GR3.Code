@@ -23,13 +23,11 @@
 #include "hardware.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "global.h"
+#include "hid.h"
 
 /*****************************    Defines    *******************************/
-#define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
-#define IDLE_PRIO 0
-#define LOW_PRIO  1
-#define MED_PRIO  2
-#define HIGH_PRIO 3
+
 
 /*****************************   Variables   *******************************/
 
@@ -66,10 +64,10 @@ int main(void)
 
   hardware_init();      // Init the hardware
 
-  return_value &= xTaskCreate( emp_board_alive,
-                               ( signed portCHAR * )  "EMP Board Alive",
-                               USERTASK_STACK_SIZE, NULL, MED_PRIO, NULL);
+  return_value &= xTaskCreate( emp_board_alive, "EMP Board Alive",
+                               USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
+  return_value &= hid_init();
 
   if (return_value != pdTRUE)
   {
