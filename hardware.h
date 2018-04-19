@@ -37,6 +37,10 @@
 #define EMP_LED_ALL       0b000
 
 /********************** External declaration of Variables ******************/
+typedef struct {
+  INT16U left;
+  INT16U right;
+} sample_t ;
 
 /*****************************   Constants   *******************************/
 
@@ -90,7 +94,9 @@ void delay_us(INT32U time);
  *   Function : delays for approx time in microseconds
  ******************************************************************************/
 
-void hardware_init(void);
+void sample_int_clear();
+
+void hardware_init(INT32U sample_freq);
 /*****************************************************************************
  *   Input    : -
  *   Output   : -

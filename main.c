@@ -25,6 +25,9 @@
 #include "task.h"
 #include "global.h"
 #include "hid.h"
+#include "lcd1602.h"
+#include "debug.h"
+#include "queue.h"
 
 /*****************************    Defines    *******************************/
 
@@ -58,16 +61,42 @@ void emp_board_alive(void *pvParameters)
 }
 
 
+void status_display(void *pvParameters)
+{
+  while (1)
+  {
+    char *value;
+
+    if (xHIDQueue != 0)
+    {
+      if (xQueueReceive(xHIDQueue, &(value), (TickType_t) 1))
+      {
+        lcd_write_char(*value);
+      }
+    }
+    vTaskDelay(100);
+  }
+}
+
+
 int main(void)
 {
   portBASE_TYPE return_value = pdTRUE;
 
-  hardware_init();      // Init the hardware
+  hardware_init(44100);      // Init the hardware to Fs=44.100 Hz
 
   return_value &= xTaskCreate( emp_board_alive, "EMP Board Alive",
                                USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
-  return_value &= hid_init();
+  /*
+  return_value &= xTaskCreate( status_display, "Status Display",
+                               USERTASK_STACK_SIZE, NULL, MED_PRIO, NULL);
+  */
+
+  lcd_init();           // Init the lcd_driver
+  lcd_write("Hello World ;)");
+
+  //return_value &= hid_init();
 
   if (return_value != pdTRUE)
   {
@@ -95,4 +124,7 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   taskDISABLE_INTERRUPTS();
   for( ;; );
 }
+
+
+
 /****************************** End Of Module *******************************/

@@ -30,9 +30,12 @@
 
 #define STATUS_LED_TIMER    TIM_200_MSEC
 
+
+#define onboard
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
+FP32 adc_pwm_ratio = 1;
 
 /*****************************   Functions   *******************************/
 INT8U is_sw1_pressed(void)
@@ -158,8 +161,8 @@ void init_ADC( )
  *   Function : Initialize the ADC
  ******************************************************************************/
 {
-  //  ANALOG_IN LEFT  -> PE4 (AIN9)
-  //            RIGHT -> PE5 (AIN8)
+  //  ANALOG_IN LEFT  -> PE4 (AIN9) -> (ADC1)
+  //            RIGHT -> PE5 (AIN8) -> (ADC0)
 
   // Module Init
   // Enable ADC0 & ADC1 Clock
@@ -171,25 +174,25 @@ void init_ADC( )
   // Enable the alternate function on PE4 and PE5, high==AFSEL
   GPIO_PORTE_AFSEL_R |= (1<<4 & 1<<5) ;
 
-  // Set input as analog, clear bit 2 and 3 on port E
+  // Set inputs as analog on port E
   GPIO_PORTE_DEN_R &= ~(1<<4 & 1<<5);
 
-  // Select analog mode AMSEL on PortE bit 2 and 3
+  // Select analog mode AMSEL on PortE
   GPIO_PORTE_AMSEL_R |= (1<<4 & 1<<5);
 
   // Sample Sequencer Configuration
 
   // Disable ASEN3:0
-  ADC0_ACTSS_R &= ~0b1111;
-  ADC1_ACTSS_R &= ~0b1111;
+  bit_clear( ADC0_ACTSS_R, 0b1111);
+  bit_clear( ADC1_ACTSS_R, 0b1111);
 
   // Configure trigger event for SS ADCEMUX, set EM3 : Processor event (ADCPSSI)
-  ADC0_EMUX_R &= 0x0000;
-  ADC1_EMUX_R &= 0x0000;
+  ADC0_EMUX_R &= 0;
+  ADC1_EMUX_R &= 0;
 
-  // Config input source for each sample i SS3, AIN11 & AIN10
-  ADC0_SSMUX3_R = 11;
-  ADC1_SSMUX3_R = 10;
+  // Config input source for each sample i SS3, AIN8 & AIN9
+  ADC0_SSMUX3_R = 8;
+  ADC1_SSMUX3_R = 9;
 
   // Set Sample Sequence Control 3
   // 3 : TS0  - Temp Sensor
@@ -202,6 +205,93 @@ void init_ADC( )
   // Set ADC Interrupt Mask (if used)
   ADC0_IM_R = 0b0000;
   ADC1_IM_R = 0b0000;
+
+  // Disable ASEN3:0
+  bit_set( ADC0_ACTSS_R, 0b1111);
+  bit_set( ADC1_ACTSS_R, 0b1111);
+}
+
+void init_PWM( INT16U cycles )
+/*****************************************************************************
+ *   Input    : Cycles matching the samplings frequency
+ *   Output   : -
+ *   Function : Initialize the PWM as audio output based on the cycles
+ *              between each sample to PB2
+ ******************************************************************************/
+{
+  // PB2 (T3CCP0)
+
+  // Activate PORTB Clock
+  bit_set( SYSCTL_RCGC2_R, SYSCTL_RCGC2_GPIOB );
+
+  // Digital enable PB2
+  bit_set( GPIO_PORTB_DEN_R, 1<<2 );
+
+  // Enable the alternate function on PortB pin 2 PB2, high==AFSEL
+  bit_set( GPIO_PORTB_AFSEL_R, 1<<2 );
+
+  // GPIO portcontrol, activate T3CCP0 on pin PB2
+  bit_clear( GPIO_PORTB_PCTL_R, GPIO_PCTL_PB2_M );
+  bit_set( GPIO_PORTB_PCTL_R, GPIO_PCTL_PB2_T3CCP0 );
+
+  // Activate Timer3 Clock
+  bit_set( SYSCTL_RCGCTIMER_R, SYSCTL_RCGCTIMER_R3 );
+
+  // Disable Timer 3
+  bit_clear( TIMER3_CTL_R, TIMER_CTL_TAEN);
+
+  // Select 16/32 bit mode for 32/64bit timer
+  bit_set( TIMER3_CFG_R, TIMER_CFG_16_BIT );
+
+  //In the GPTM Timer Mode (GPTMTnMR) register, set the
+  // TnAMS bit to 0x1  - PWM mode enabled
+  // TnCMR bit to 0x0  - Edge count mode
+  // TnMR field to 0x2 - Periodic time mode
+  bit_set( TIMER3_TAMR_R, TIMER_TAMR_TAAMS );
+  bit_clear( TIMER3_TAMR_R , TIMER_TAMR_TACMR );
+  bit_set( TIMER3_TAMR_R, TIMER_TAMR_TAMR_PERIOD );
+
+  // Configure the output state of the PWM signal
+  // (whether or not it is inverted) in the TnPWML field
+  // of the GPTM Control (GPTMCTL) register.
+
+  //bit_clear( TIMER3_CTL_R, TIMER_CTL_TAPWML ); // PWM signal is not inverted
+  bit_set( TIMER3_CTL_R, TIMER_CTL_TAPWML ); // PWM signal IS inverted
+
+  //  If a prescaler is to be used, write the prescale value to the
+  //  GPTM Timer n Prescale Register (GPTMTnPR).
+
+  // TIMER3_TAPR_R = 0;
+
+  // Load the timer start value into the GPTM Timer n Interval Load
+  // (GPTMTnILR) register.
+
+  TIMER3_TAILR_R = cycles;
+
+  //  Load the GPTM Timer n Match (GPTMTnMATCHR) register with
+  //  the match value.
+  TIMER3_TAMATCHR_R = 0;
+
+  TIMER3_ICR_R |= TIMER_ICR_CAECINT;
+
+  // Enable NVIC interrupt 35
+  bit_set(NVIC_EN1_R, 1<<3 );
+
+  bit_set( TIMER3_TAMR_R, TIMER_TAMR_TAPWMIE);
+  bit_set( TIMER3_IMR_R, TIMER_IMR_CAEIM);
+
+  // Enable Timer3 Interrupt on Timer A Falling Edge
+  bit_clear( TIMER3_CTL_R , TIMER_CTL_TAEVENT_M);
+  bit_set( TIMER3_CTL_R, TIMER_CTL_TAEVENT_NEG);
+
+
+
+  // Timer A freezes counting while the processor is halted by the   debugger.
+  bit_set( TIMER3_CTL_R, TIMER_CTL_TASTALL);
+
+
+  // Enable Timer 3
+  bit_set( TIMER3_CTL_R, TIMER_CTL_TAEN);
 }
 
 void enable_FPU()
@@ -351,20 +441,71 @@ void set_80Mhz_clock()
 
 }
 
-void hardware_init()
+void init_debug_pins()
+/*****************************************************************************
+ *   Input    : -
+ *   Output   : -
+ *   Function : Initialize the debug pins PB0, PB1 and PB3
+ ******************************************************************************/
+{
+  // Activate PORTB Clock
+  SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R1;
+
+  // GPIO Direction (GPIOB)
+  GPIO_PORTB_DIR_R |= ( 1<<0 | 1<<1 | 1<<3 );
+
+  // GPIO Digital Enable (GPIODEN)
+  GPIO_PORTB_DEN_R |= ( 1<<0 | 1<<1 | 1<<3 ) ;
+}
+
+void sample_int_clear()
+{
+  TIMER3_ICR_R |= TIMER_ICR_CAECINT;
+}
+
+void sample_put(sample_t *sample)
+{
+  // mono operation
+  INT32U mono = (sample->left + sample->right)>>2;
+  TIMER3_TAMATCHR_R = (INT32U)(adc_pwm_ratio * mono);;
+}
+
+void sample_get(sample_t *sample)
+{
+  if( !( ADC0_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY) )
+     sample->left = (INT16U)(ADC0_SSFIFO3_R);
+   else
+     sample->left = 2048;
+
+   if( !( ADC1_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY) )
+     sample->right = (INT16U)(ADC1_SSFIFO3_R);
+   else
+     sample->right = 2048;
+
+   ADC0_PSSI_R |= ADC_PSSI_SS3;
+   ADC1_PSSI_R |= ADC_PSSI_SS3;
+}
+
+void hardware_init(INT32U sample_freq)
 /*****************************************************************************
  *   Header description
  ******************************************************************************/
 {
-  // disable global interrupt
+  INT16U cycles = CPU_F / sample_freq;
+  adc_pwm_ratio = (FP32)cycles/4096;
+
   disable_global_int();
 
   set_80Mhz_clock();
 
-  delay_init();
-
   // Initialize the Tiva board
   init_tiva_board();
+
+  delay_init();
+
+  init_PWM( cycles );
+
+  init_debug_pins();
 
   init_ADC();
 

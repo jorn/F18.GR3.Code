@@ -1,61 +1,56 @@
 /*****************************************************************************
  * University of Southern Denmark
  *
- * MODULENAME.: systick.c
+ * MODULENAME.: debug.c
  *
- * PROJECT....:
+ * PROJECT....: EQ_ONE
  *
- * DESCRIPTION: sysTick module
+ * DESCRIPTION: Debug module used for PIN toggle on EMP board
  *
  * Change Log:
  *****************************************************************************
  * Date    Id    Change
  * --------------------
- * 16. mar. 2018  jorn    Module adopted from MOH systick
+ * 16. apr. 2017  jorn    Module created.
  *
  *****************************************************************************/
 
-#ifndef _SYSTICK_H
-#define _SYSTICK_H
-
 /***************************** Include files *******************************/
+#include "debug.h"
+#include <stdint.h>
+#include "tm4c123gh6pm.h"
+#include "hardware.h"
+#include "emp_type.h"
 
 /*****************************    Defines    *******************************/
-#define CPU_F         80000000
-#define MS_PER_TICK   1
+
 /*****************************   Constants   *******************************/
 
+/*****************************   Variables   *******************************/
+
 /*****************************   Functions   *******************************/
-void enable_global_int();
+void debug_pins_high(INT8U pins)
 /*****************************************************************************
- *   Input    : -
- *   Output   : -
- *   Function : Enable global interrupt.
+ *   Header description
  ******************************************************************************/
+{
+  DEBUG_PORT |= pins;                 // set debug pins high
+}
 
-void disable_global_int();
+void debug_pins_low(INT8U pins)
 /*****************************************************************************
- *   Input    : -
- *   Output   : -
- *   Function : Disable global interrupt.
+ *   Header description
  ******************************************************************************/
+{
+  DEBUG_PORT &= ~pins;                // set debug pins low
+}
 
-void systick_init();
+void debug_pins_toggle(INT8U pins)
 /*****************************************************************************
- *   Input    : -
- *   Output   : -
- *   Function : Initialize the systick interrupt.
+ *   Header description
  ******************************************************************************/
-
-INT32U systick_touch();
-/*****************************************************************************
- *   Input    : -
- *   Output   : systick value since last touch
- *   Function : Touch the systick timer
- ******************************************************************************/
-
+{
+  DEBUG_PORT ^= pins;                 // toggle bebug pins
+}
 
 /****************************** End Of Module *******************************/
-#endif
-
-

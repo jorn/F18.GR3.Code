@@ -1,61 +1,63 @@
 /*****************************************************************************
  * University of Southern Denmark
  *
- * MODULENAME.: systick.c
+ * MODULENAME.: debug.h
  *
- * PROJECT....:
+ * PROJECT....: EQ_ONE
  *
- * DESCRIPTION: sysTick module
+ * DESCRIPTION:
  *
  * Change Log:
- *****************************************************************************
+ ******************************************************************************
  * Date    Id    Change
+ * YYMMDD
  * --------------------
- * 16. mar. 2018  jorn    Module adopted from MOH systick
+ * 16. apr. 2017	jorn    Module created.
  *
  *****************************************************************************/
 
-#ifndef _SYSTICK_H
-#define _SYSTICK_H
+#ifndef DEBUG_H_
+#define DEBUG_H_
 
 /***************************** Include files *******************************/
+#include "emp_type.h"
 
 /*****************************    Defines    *******************************/
-#define CPU_F         80000000
-#define MS_PER_TICK   1
+// GPIO port used for debug
+#define       DEBUG_PORT      GPIO_PORTB_DATA_R
+
+// Debug PIN-MAP on DEBUG_PORT
+#define       DEBUG_P1        0x1
+#define       DEBUG_P2        0x2
+#define       DEBUG_P3        0x8
+
+
+
+/********************** External declaration of Variables ******************/
+
 /*****************************   Constants   *******************************/
 
-/*****************************   Functions   *******************************/
-void enable_global_int();
+/*************************  Function interfaces ****************************/
+void debug_pins_high(INT8U pins);
 /*****************************************************************************
- *   Input    : -
+ *   Input    : Pin bit mask
  *   Output   : -
- *   Function : Enable global interrupt.
+ *   Function : Sets the selected pins bitmask high
  ******************************************************************************/
 
-void disable_global_int();
+void debug_pins_low(INT8U pins);
 /*****************************************************************************
- *   Input    : -
+ *   Input    : Pin bit mask
  *   Output   : -
- *   Function : Disable global interrupt.
+ *   Function : Sets the selected pins bitmask low
  ******************************************************************************/
 
-void systick_init();
+void debug_pins_toggle(INT8U pins);
 /*****************************************************************************
- *   Input    : -
+ *   Input    : Pin bit mask
  *   Output   : -
- *   Function : Initialize the systick interrupt.
+ *   Function : Toggles the selected pins bitmask
  ******************************************************************************/
-
-INT32U systick_touch();
-/*****************************************************************************
- *   Input    : -
- *   Output   : systick value since last touch
- *   Function : Touch the systick timer
- ******************************************************************************/
-
 
 /****************************** End Of Module *******************************/
-#endif
-
-
+#endif /* DEBUG_H_ */

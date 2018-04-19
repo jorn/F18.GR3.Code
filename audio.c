@@ -1,9 +1,9 @@
 /*****************************************************************************
  * University of Southern Denmark
  *
- * MODULENAME.: utils.c
+ * MODULENAME.: audio.c
  *
- * PROJECT....: F18.GR3
+ * PROJECT....: F18.GR3.Code
  *
  * DESCRIPTION: 
  *
@@ -11,41 +11,41 @@
  *****************************************************************************
  * Date    Id    Change
  * --------------------
- * Apr 17, 2018  jorn    Module created.
+ * Apr 19, 2018  jorn    Module created.
  *
  *****************************************************************************/
 
 /***************************** Include files *******************************/
 #include <stdint.h>
+#include "audio.h"
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "debug.h"
+#include "hardware.h"
+#include "global.h"
 
 /*****************************    Defines    *******************************/
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
+static sample_t *sample;
 
 /*****************************   Functions   *******************************/
-char* itoa(int i, char b[])
+void sample_handler( void )
 {
-    char const digit[] = "0123456789";
-    char* p = b;
-    if(i<0){
-        *p++ = '-';
-        i *= -1;
-    }
-    int shifter = i;
-    do{ //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    }while(shifter);
-    *p = '\0';
-    do{ //Move back, inserting digits as u go
-        *--p = digit[i%10];
-        i = i/10;
-    }while(i);
-    return b;
+  sample_int_clear();
+
+  // Debug toggle debug pin 3
+  debug_pins_toggle( DEBUG_P3 );
+
+  sample_get( &sample );
+  sample_put( &sample );
 }
+
+
+
 
 /****************************** End Of Module *******************************/

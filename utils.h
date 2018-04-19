@@ -1,9 +1,9 @@
 /*****************************************************************************
  * University of Southern Denmark
  *
- * MODULENAME.: hid.h
+ * MODULENAME.: utils.h
  *
- * PROJECT....: F18.GR3.Code
+ * PROJECT....: F18.GR3
  *
  * DESCRIPTION:
  *
@@ -12,29 +12,31 @@
  * Date    Id    Change
  * YYMMDD
  * --------------------
- * Apr 18, 2018	jorn    Module created.
+ * Apr 19, 2018	jorn    Module created.
  *
  *****************************************************************************/
 
-#ifndef HID_H_
-#define HID_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
 /***************************** Include files *******************************/
+#include <stdint.h>
 #include "emp_type.h"
-#include "FreeRTOS.h"
-#include "queue.h"
 
 
 /*****************************    Defines    *******************************/
 
 /********************** External declaration of Variables ******************/
-QueueHandle_t xHIDQueue;
 
 /*****************************   Constants   *******************************/
 
 /*************************  Function interfaces ****************************/
-BaseType_t hid_init();
-
+char* itoa(int i, char b[]);
+/*****************************************************************************
+ *   Input    : 
+ *   Output   : 
+ *   Function : 
+ ******************************************************************************/
 
 /****************************** End Of Module *******************************/
-#endif /* HID_H_ */
+#endif /* UTILS_H_ */

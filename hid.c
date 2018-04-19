@@ -3,7 +3,7 @@
  *
  * MODULENAME.: hid.c
  *
- * PROJECT....: 
+ * PROJECT....: F18.GR3.Code
  *
  * DESCRIPTION: 
  *
@@ -23,20 +23,18 @@
 #include "task.h"
 #include "queue.h"
 #include "global.h"
+#include "lcd1602.h"
+#include "debug.h"
 
 /*****************************    Defines    *******************************/
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
-QueueHandle_t xHIDQueue;
-
+extern QueueHandle_t xHIDQueue;
 
 
 /*****************************   Functions   *******************************/
-
-
-
 void digiswitch_task(void *pvParameters)
 {
   static INT8U AB[2][2] = { {0,0},{0,0} };     // AB[N]
@@ -46,17 +44,16 @@ void digiswitch_task(void *pvParameters)
   const INT8U A = 0;
   const INT8U B = 1;
 
+  //const TickType_t xDelay = 1 / portTICK_PERIOD_MS;
+
   while(1)
   {
     // Check Digi P2
     if( !( GPIO_PORTA_DATA_R & 0b10000000) )
     {
-      deg = 0;
-      //emp_set_led(LED_RED);
+      // Digiswitch click
+      xQueueSendToBack( xHIDQueue, "c", 10 );
     }
-    else
-      //emp_clear_led(LED_RED);
-
 
     // Read inputs
     AB[1][A] = !(GPIO_PORTA_DATA_R & 0b00100000);    // Read Digi A
@@ -72,7 +69,7 @@ void digiswitch_task(void *pvParameters)
         if( !YY[A] && YY[B] )
         {
           // right toggle
-          xQueueSendToBack( xHIDQueue, 2, 10 );
+          xQueueSendToBack( xHIDQueue, "R", 10 );
 
           //emp_toggle_led(LED_YELLOW);
           //deg += 6;
@@ -81,7 +78,7 @@ void digiswitch_task(void *pvParameters)
         }
         else if ( YY[A] && !YY[B] )
         {
-          xQueueSendToBack( xHIDQueue, 1, 10 );
+          xQueueSendToBack( xHIDQueue, "L", 10 );
           //emp_toggle_led(LED_GREEN);
           //if(deg == 0)
           //  deg = 360-6;
@@ -97,7 +94,7 @@ void digiswitch_task(void *pvParameters)
       {
         if( YY[A] && !YY[B] )
         {
-          xQueueSendToBack( xHIDQueue, 2, 10 );
+          xQueueSendToBack( xHIDQueue, "R", 10 );
           //emp_toggle_led(LED_YELLOW);
           //deg += 6;
           //if(deg==360)
@@ -105,7 +102,7 @@ void digiswitch_task(void *pvParameters)
         }
         else if ( !YY[A] && YY[B] )
         {
-          xQueueSendToBack( xHIDQueue, 1, 10 );
+          xQueueSendToBack( xHIDQueue, "L", 10 );
           //emp_toggle_led(LED_GREEN);
           //if(deg == 0)
           //  deg = 360-6;
@@ -128,8 +125,7 @@ void digiswitch_task(void *pvParameters)
     //char b[3];
     //lcd_write( itoa(deg, b) );
 
-    vTaskDelay(1);
-
+    //vTaskDelay(xDelay);
   }
 }
 
@@ -139,8 +135,15 @@ BaseType_t hid_init()
 
   xHIDQueue = xQueueCreate( 5, sizeof( int8_t ) );
 
+  if( xHIDQueue != NULL )
+  {
+
   return_value &= xTaskCreate( digiswitch_task, "HID Digiswitch",
-                               USERTASK_STACK_SIZE, NULL, MED_PRIO , NULL);
+                               USERTASK_STACK_SIZE, NULL, LOW_PRIO , NULL);
+
+  }
+  else
+    return_value = pdFALSE;
 
   return( return_value );
 }
