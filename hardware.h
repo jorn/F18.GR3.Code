@@ -96,6 +96,11 @@ void delay_us(INT32U time);
 
 void sample_int_clear();
 
+void sample_out_spi(sample_t *sample);
+void sample_out_pwm(sample_t *sample);
+void sample_in(sample_t *sample);
+INT8U is_digi_p2_pressed(void);
+
 void hardware_init(INT32U sample_freq);
 /*****************************************************************************
  *   Input    : -

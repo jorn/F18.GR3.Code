@@ -29,7 +29,6 @@
 // Debug PIN-MAP on DEBUG_PORT
 #define       DEBUG_P1        0x1
 #define       DEBUG_P2        0x2
-#define       DEBUG_P3        0x8
 
 
 

@@ -28,6 +28,7 @@
 #include "lcd1602.h"
 #include "debug.h"
 #include "queue.h"
+#include "audio.h"
 
 /*****************************    Defines    *******************************/
 
@@ -55,10 +56,17 @@ void emp_board_alive(void *pvParameters)
 {
   while(1)
   {
+    if(is_digi_p2_pressed())
+      audio_pwm_off();
+    else
+      audio_pwm_on();
+
     emp_toggle_status_led();
     vTaskDelay(500);
   }
 }
+
+
 
 
 void status_display(void *pvParameters)
@@ -85,6 +93,8 @@ int main(void)
 
   hardware_init(44100);      // Init the hardware to Fs=44.100 Hz
 
+  audio_init();
+
   return_value &= xTaskCreate( emp_board_alive, "EMP Board Alive",
                                USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
@@ -94,7 +104,6 @@ int main(void)
   */
 
   lcd_init();           // Init the lcd_driver
-  lcd_write("Hello World ;)");
 
   //return_value &= hid_init();
 

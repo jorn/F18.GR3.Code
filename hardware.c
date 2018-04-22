@@ -43,7 +43,7 @@ INT8U is_sw1_pressed(void)
  *   Header description
  ******************************************************************************/
 {
-  return ((GPIO_PORTF_DATA_R & 0x10) ? 0 : 1);
+  return ((GPIO_PORTF_DATA_R & BIT_5) ? 0 : 1);
 }
 
 INT8U is_sw2_pressed(void)
@@ -51,7 +51,12 @@ INT8U is_sw2_pressed(void)
  *   Header description
  ******************************************************************************/
 {
-  return ((GPIO_PORTF_DATA_R & 0x01) ? 0 : 1);
+  return ((GPIO_PORTF_DATA_R & BIT_0) ? 0 : 1);
+}
+
+INT8U is_digi_p2_pressed(void)
+{
+  return ((GPIO_PORTA_DATA_R & BIT_7 ) ? 0 : 1);
 }
 
 
@@ -391,6 +396,23 @@ void spi_init()
   bit_set (SSI2_CR1_R, SSI_CR1_SSE);
 }
 
+void spi_set_value(INT16U value, INT8U channel)
+{
+  INT32U data;
+
+  if (channel == 0)
+    data = 0b0111 << 12;          // select channel A
+  else
+    data = 0b1111 << 12;          // select channel B
+
+  // Add the value
+  data |= ( value & 0xFFF );      // use only 12bits from value
+
+  while( SSI2_SR_R & SSI_SR_BSY); // Wait for SSI if busy
+
+  SSI2_DR_R = data;                // Write instruction to DAC
+}
+
 void set_80Mhz_clock()
 /*****************************************************************************
  *   Input    : -
@@ -452,10 +474,10 @@ void init_debug_pins()
   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R1;
 
   // GPIO Direction (GPIOB)
-  GPIO_PORTB_DIR_R |= ( 1<<0 | 1<<1 | 1<<3 );
+  GPIO_PORTB_DIR_R |= ( 1<<0 | 1<<1 );
 
   // GPIO Digital Enable (GPIODEN)
-  GPIO_PORTB_DEN_R |= ( 1<<0 | 1<<1 | 1<<3 ) ;
+  GPIO_PORTB_DEN_R |= ( 1<<0 | 1<<1 ) ;
 }
 
 void sample_int_clear()
@@ -463,27 +485,36 @@ void sample_int_clear()
   TIMER3_ICR_R |= TIMER_ICR_CAECINT;
 }
 
-void sample_put(sample_t *sample)
+void sample_out_pwm(sample_t *sample)
 {
   // mono operation
   INT32U mono = (sample->left + sample->right)>>2;
   TIMER3_TAMATCHR_R = (INT32U)(adc_pwm_ratio * mono);;
 }
 
-void sample_get(sample_t *sample)
+void sample_out_spi(sample_t *sample)
 {
-  if( !( ADC0_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY) )
-     sample->left = (INT16U)(ADC0_SSFIFO3_R);
-   else
-     sample->left = 2048;
+  //bit_set (GPIO_PORTB_DATA_R, 1<<3);    // Set LDAC high
+  spi_set_value(sample->left, 0);       // Set LEFT channel
+  spi_set_value(sample->right, 1);      // Set RIGHT channel
+  //bit_clear (GPIO_PORTB_DATA_R, 1<<3);  // Pull LDAC low and latch samples
+}
 
-   if( !( ADC1_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY) )
-     sample->right = (INT16U)(ADC1_SSFIFO3_R);
-   else
-     sample->right = 2048;
 
-   ADC0_PSSI_R |= ADC_PSSI_SS3;
-   ADC1_PSSI_R |= ADC_PSSI_SS3;
+void sample_in(sample_t *sample)
+{
+  if (!( ADC0_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY))
+    sample->left = (INT16U) (ADC0_SSFIFO3_R);
+  else
+    sample->left = 2048;
+
+  if (!( ADC1_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY))
+    sample->right = (INT16U) (ADC1_SSFIFO3_R);
+  else
+    sample->right = 2048;
+
+  ADC0_PSSI_R |= ADC_PSSI_SS3;
+  ADC1_PSSI_R |= ADC_PSSI_SS3;
 }
 
 void hardware_init(INT32U sample_freq)
