@@ -79,7 +79,7 @@ void status_display(void *pvParameters)
     {
       if (xQueueReceive(xHIDQueue, &(value), (TickType_t) 1))
       {
-        lcd_write_char(*value);
+        lcd_write_char(*value+0x20);
       }
     }
     vTaskDelay(100);
@@ -93,19 +93,20 @@ int main(void)
 
   hardware_init(44100);      // Init the hardware to Fs=44.100 Hz
 
+  emp_clear_leds();
+
   audio_init();
 
   return_value &= xTaskCreate( emp_board_alive, "EMP Board Alive",
                                USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
-  /*
+
   return_value &= xTaskCreate( status_display, "Status Display",
                                USERTASK_STACK_SIZE, NULL, MED_PRIO, NULL);
-  */
 
   lcd_init();           // Init the lcd_driver
 
-  //return_value &= hid_init();
+  return_value &= hid_init();
 
   if (return_value != pdTRUE)
   {
