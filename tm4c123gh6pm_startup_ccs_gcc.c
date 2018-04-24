@@ -44,6 +44,7 @@ void xPortPendSVHandler( void ) __attribute__ (( naked ));
 void xPortSysTickHandler( void );
 
 void sample_handler( void );
+void digiswitch_handler( void );
 
 #ifndef HWREG
 #define HWREG(x) (*((volatile uint32_t *)(x)))
@@ -97,7 +98,7 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     xPortPendSVHandler,                     // FreeRTOS PendSV Handler
     xPortSysTickHandler,                    // FreeRTOS SysTick Handler
-    IntDefaultHandler,                      // GPIO Port A
+    digiswitch_handler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
     IntDefaultHandler,                      // GPIO Port D

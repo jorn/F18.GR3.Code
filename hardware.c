@@ -135,7 +135,24 @@ void init_digiswitch()
   // Setup DIGISwitch (PA5, PA6, PA7)
   bit_clear( GPIO_PORTA_DIR_R, 0b11100000 );    // Input
   bit_set  ( GPIO_PORTA_DEN_R, 0b11100000 );
+
+  // Interrupt Sense  (GPIOIS)
+  bit_clear( GPIO_PORTA_IS_R, BIT_5 | BIT_6);   // Set PA5 & PA6 edge-sensitive
+
+  //  Interrupt Both Edges (GPIOIBE)
+  bit_clear( GPIO_PORTA_IBE_R, BIT_5 | BIT_6);
+
+  // GPIO Interrupt Event (GPIOIEV)
+  bit_set( GPIO_PORTA_IEV_R, BIT_5 | BIT_6);    // Set rising edge or a High level
+
+  // GPIO Interrupt Mask (GPIOIM)
+  bit_set( GPIO_PORTA_IM_R, BIT_5 | BIT_6);     // Unmask interrupt for PA5 & PA6
+
+  // Enable NVIC interrupt 0
+  bit_set(NVIC_EN0_R, 1 );
+
 }
+
 
 void delay_us(INT32U time)
 /*****************************************************************************
@@ -227,7 +244,7 @@ void init_PWM( INT16U cycles )
   // PB2 (T3CCP0)
 
   // Activate PORTB Clock
-  bit_set( SYSCTL_RCGC2_R, SYSCTL_RCGC2_GPIOB );
+  bit_set( SYSCTL_RCGCGPIO_R, SYSCTL_RCGCGPIO_R1);
 
   // Digital enable PB2
   bit_set( GPIO_PORTB_DEN_R, 1<<2 );

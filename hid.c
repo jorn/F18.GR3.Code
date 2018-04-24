@@ -25,6 +25,7 @@
 #include "global.h"
 #include "lcd1602.h"
 #include "debug.h"
+#include "hardware.h"
 
 /*****************************    Defines    *******************************/
 
@@ -32,6 +33,58 @@
 
 /*****************************   Variables   *******************************/
 extern QueueHandle_t xHIDQueue;
+
+
+void digiswitch_handler(void)
+{
+  static INT8U state[2][2] = {{ 0, 0 },{ 0, 0 }};
+  const INT8U A = 0;                    // PA5
+  const INT8U B = 1;                    // PA6
+
+  /* We have not woken a task at the start of the ISR. */
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  int8_t out = 0;
+
+  if( GPIO_PORTA_RIS_R & BIT_5 )
+  {
+    bit_set( GPIO_PORTA_ICR_R, BIT_5);      // Clear int. for PA5
+    state[A][0] = 1;
+  }
+
+  if( GPIO_PORTA_RIS_R & BIT_6 )
+  {
+    bit_set( GPIO_PORTA_ICR_R, BIT_6);      // Clear int. for PA6
+    state[B][0] = 1;
+  }
+
+  // Switch logic
+  if( state[B][0] && state[A][1] )
+  {  // CCW ??
+    out = 1;
+    emp_clear_leds();
+    emp_set_led( EMP_LED_RED );
+  }
+
+  if( state[A][0] && state[B][1] )
+  {   // CW ??
+    out = 2;
+    emp_clear_leds();
+    emp_set_led( EMP_LED_GREEN );
+  }
+
+//  if(out)
+//    xQueueSendToBackFromISR( xHIDQueue, &out, &xHigherPriorityTaskWoken );
+
+
+  // Store switch history
+  state[A][1] = state[A][0];
+  state[A][0] = 0;
+  state[B][1] = state[B][0];
+  state[B][0] = 0;
+
+  portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+
+}
 
 
 /*****************************   Functions   *******************************/
@@ -138,9 +191,10 @@ BaseType_t hid_init()
   if( xHIDQueue != NULL )
   {
 
+    /*
   return_value &= xTaskCreate( digiswitch_task, "HID Digiswitch",
                                USERTASK_STACK_SIZE, NULL, LOW_PRIO , NULL);
-
+*/
   }
   else
     return_value = pdFALSE;
