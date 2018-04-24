@@ -20,65 +20,47 @@
 #define BUFFER_H_
 
 /***************************** Include files *******************************/
-#include "emp_type.h"
 #include <stdint.h>
+
 /*****************************    Defines    *******************************/
 
-
 /********************** External declaration of Variables ******************/
+typedef struct
+{
+    float left_fp32;
+    float right_fp32;
+} fp_sample_t;
 
 /*****************************   Constants   *******************************/
 
 /*************************  Function interfaces ****************************/
 
-int8_t sample_buffer_reset(sample_buffer_t * sample_buffer);
-/*****************************************************************************
- *    Input    : The buffer to be reset
- *    Output   : 
- *    Function : Resets the buffer.
- *******************************************************************************/
-
-int8_t sample_buffer_put(sample_buffer_t * sample_buffer, float data);
+void sample_buffer_put(fp_sample_t *data);
 /*****************************************************************************
  *    Input    : The buffer data should be put into and the data to put in.
  *    Output   : 
  *    Function : Inserts data into the buffer.
  *******************************************************************************/
 
-int8_t sample_buffer_get(sample_buffer_t * sample_buffer, float * data);
+void sample_buffer_get(fp_sample_t * data);
 /*****************************************************************************
  *    Input    : The buffer data is to be got from.
  *    Output   : 
  *    Function : Gets data from buffer.
  *******************************************************************************/
 
-int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, float data);
+void sample_buffer_put_z(fp_sample_t *data, uint16_t z);
 /*****************************************************************************
  *    Input    : The buffer data should be put into and the data to put in.
  *    Output   :
  *    Function : Inserts data into the buffer.
  *******************************************************************************/
 
-int8_t sample_buffer_get_z(sample_buffer_t * sample_buffer, float * data);
+void sample_buffer_get_z(fp_sample_t *data, uint16_t z);
 /*****************************************************************************
  *    Input    : The buffer data is to be got from.
  *    Output   :
  *    Function : Gets data from buffer.
  *******************************************************************************/
 
-bool sample_buffer_empty(sample_buffer_t sample_buffer);
-/*****************************************************************************
- *    Input    : The buffer to check.
- *    Output   : Outputs 1 if buffer is empty and 0 if not.
- *    Function : Checks if a buffer is empty.
- *******************************************************************************/
-
-bool sample_buffer_full(sample_buffer_t sample_buffer);
-/*****************************************************************************
- *    Input    : The buffer to check.
- *    Output   : Outputs 1 if buffer is full and 0 if not.
- *    Function : Checks if a buffer is full.
- *******************************************************************************/
-
-/****************************** End Of Module *******************************/
 #endif /* BUFFER_H_ */

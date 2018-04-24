@@ -183,8 +183,8 @@ void init_ADC( )
  *   Function : Initialize the ADC
  ******************************************************************************/
 {
-  //  ANALOG_IN LEFT  -> PE4 (AIN9) -> (ADC1)
-  //            RIGHT -> PE5 (AIN8) -> (ADC0)
+  //  ANALOG_IN RIGHT  -> PE4 (AIN9) -> (ADC1)
+  //            LEFT   -> PE5 (AIN8) -> (ADC0)
 
   // Module Init
   // Enable ADC0 & ADC1 Clock

@@ -25,14 +25,13 @@
 #include "debug.h"
 #include "hardware.h"
 #include "global.h"
+#include "mod_vol.h"
 
 /*****************************    Defines    *******************************/
-
+#define     MCB_POOL_SIZE     10
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
-static volatile sample_t *sample;
-
 typedef enum{
   ON,
   OFF
@@ -46,16 +45,46 @@ typedef struct {
 
 static acb_t acb;
 
+typedef struct {
+  BOOLEAN     active;
+  void        (*module)(fp_sample_t*, fp_sample_t*);
+} mcb_t;
+
+static mcb_t mcb_pool[MCB_POOL_SIZE];
 
 
 /*****************************   Functions   *******************************/
 void sample_handler( void )
 {
   sample_int_clear();
-
   debug_pins_high( DEBUG_P1 );
 
+  static sample_t sample;
+  static fp_sample_t fp_sample_in;
+  static fp_sample_t fp_sample_out;
+
   sample_in( &sample );
+  fp_sample_in.left_fp32 = (float)((sample.left) - 2048);
+  fp_sample_in.right_fp32 = (float)((sample.right) - 2048);
+  // call set_buffer med &fp_sample
+
+  for(int8_t i=0; i<MCB_POOL_SIZE; i++)
+  {
+    if(mcb_pool[i].active)
+    {
+      mcb_pool[i].module( &fp_sample_in, &fp_sample_out );
+      // flip in and out
+      fp_sample_in = fp_sample_out;
+    }
+  }
+
+  // add 11 bit offset
+  fp_sample_out.left_fp32 += 2048;
+  fp_sample_out.right_fp32 += 2048;
+
+  // truncate and cast sample
+  sample.left = fp_sample_out.left_fp32 > 4096 ? 4096 : (INT16U)fp_sample_out.left_fp32 ;
+  sample.right = fp_sample_out.right_fp32 > 4096 ? 4096 : (INT16U)fp_sample_out.right_fp32 ;
 
   if( acb.pwm )
     sample_out_pwm( &sample );
@@ -83,6 +112,10 @@ void audio_init()
   acb.stereo = TRUE;
   acb.dac = TRUE;
   acb.pwm = TRUE;
+
+  // Add volume module at the end
+  mcb_pool[MCB_POOL_SIZE-1].active = TRUE;
+  mcb_pool[MCB_POOL_SIZE-1].module = mod_vol_effekt;
 }
 
 
