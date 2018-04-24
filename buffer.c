@@ -20,7 +20,7 @@
 /***************************** Include files ********************************/
 #include "buffer.h"
 /*****************************    Defines    ********************************/
-#define   BUFFER_SIZE   100
+#define   BUFFER_SIZE   2000
 
 /*****************************   Constants   ********************************/
 
@@ -42,7 +42,7 @@ void sample_buffer_put(fp_sample_t *data)
   buffer[head].left_fp32 = data->left_fp32;
   buffer[head].right_fp32 = data->right_fp32;
 
-  if (head < BUFFER_SIZE)
+  if (head < (BUFFER_SIZE-1))
     head++;
   else
   {

@@ -26,6 +26,7 @@
 #include "hardware.h"
 #include "global.h"
 #include "mod_vol.h"
+#include "mod_echo.h"
 
 /*****************************    Defines    *******************************/
 #define     MCB_POOL_SIZE     10
@@ -66,7 +67,8 @@ void sample_handler( void )
   sample_in( &sample );
   fp_sample_in.left_fp32 = (float)((sample.left) - 2048);
   fp_sample_in.right_fp32 = (float)((sample.right) - 2048);
-  // call set_buffer med &fp_sample
+
+
 
   for(int8_t i=0; i<MCB_POOL_SIZE; i++)
   {
@@ -77,6 +79,8 @@ void sample_handler( void )
       fp_sample_in = fp_sample_out;
     }
   }
+
+  sample_buffer_put( &fp_sample_in );
 
   // add 11 bit offset
   fp_sample_out.left_fp32 += 2048;
@@ -112,6 +116,9 @@ void audio_init()
   acb.stereo = TRUE;
   acb.dac = TRUE;
   acb.pwm = TRUE;
+
+  mcb_pool[0].active = TRUE;
+  mcb_pool[0].module = mod_echo_effekt;
 
   // Add volume module at the end
   mcb_pool[MCB_POOL_SIZE-1].active = TRUE;

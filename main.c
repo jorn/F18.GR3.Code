@@ -55,11 +55,6 @@ void emp_board_alive(void *pvParameters)
 {
   while(1)
   {
-    if(is_digi_p2_pressed())
-      audio_pwm_off();
-    else
-      audio_pwm_on();
-
     emp_toggle_status_led();
     vTaskDelay(500);
   }
