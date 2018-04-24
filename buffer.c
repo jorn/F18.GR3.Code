@@ -73,7 +73,9 @@ int8_t sample_buffer_get(sample_buffer_t * sample_buffer, fp_sample_t * data)
  *    Function : Gets data from buffer.
  *******************************************************************************/
 {
+  *data = sample_buffer[sample_buffer->(head - 1)];
 
+  return 0;
 }
 
 int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, fp_sample_t data,
@@ -101,7 +103,15 @@ int8_t sample_buffer_get_z(sample_buffer_t * sample_buffer, fp_sample_t * data,
  *    Function : Gets data from buffer at location offset from header by z.
  *******************************************************************************/
 {
+  if (z > sample_buffer->size)
+  {
 
+
+
+  }
+
+  *data = sample_buffer[sample_buffer->(head - 1)];
+  
 }
 
 bool sample_buffer_empty(sample_buffer_t sample_buffer)
