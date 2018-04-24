@@ -26,14 +26,7 @@
 
 
 /********************** External declaration of Variables ******************/
-typedef struct {
-  float    buffer[12000];
-  uint16_t head = 0; //pointer to head in buffer
-  uint16_t size = 12000;
-  bool     flip = 0;
-} sample_buffer_t;
 
-static sample_buffer_t sample_buffer;
 /*****************************   Constants   *******************************/
 
 /*************************  Function interfaces ****************************/
