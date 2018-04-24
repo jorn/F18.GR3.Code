@@ -84,7 +84,14 @@ int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, fp_sample_t data,
  *    Function : Inserts data into the buffer at location offset from header by z.
  *******************************************************************************/
 {
-
+    if (sample_buffer->head > z)
+        uint16_t addr = (sample_buffer->head - z);
+    else
+    {
+        uint16_t sub = (z - sample_buffer->head);
+        uint16_t addr = (sample_buffer->size - sub);
+    }
+    sample_buffer->buffer[addr] = data;
 }
 
 int8_t sample_buffer_get_z(sample_buffer_t * sample_buffer, fp_sample_t * data,
