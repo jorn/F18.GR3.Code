@@ -88,8 +88,7 @@ int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, fp_sample_t data,
         uint16_t addr = (sample_buffer->head - z);
     else
     {
-        uint16_t sub = (z - sample_buffer->head);
-        uint16_t addr = (sample_buffer->size - sub);
+        uint16_t addr = ((sample_buffer->size - z) + sample_buffer->head);
     }
     sample_buffer->buffer[addr] = data;
 }
