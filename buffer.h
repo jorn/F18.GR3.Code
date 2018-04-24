@@ -27,10 +27,8 @@
 
 /********************** External declaration of Variables ******************/
 typedef struct {
-  float * buffer;
-  size_t tail; //buffer for audio samples
-  size_t head; //pointer to head in buffer
-  size_t size; 
+  float  buffer[12000];
+  uint16_t head; //pointer to head in buffer
 } sample_buffer_t;
 
 static sample_buffer_t sample_buffer;

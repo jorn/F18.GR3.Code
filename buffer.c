@@ -20,6 +20,10 @@
 /***************************** Include files ********************************/
 #include "buffer.h"
 /*****************************    Defines    ********************************/
+typedef struct {
+  float left_fp32;
+  float right_fp32;
+} fp_sample_t;
 
 /*****************************   Constants   ********************************/
 
@@ -39,7 +43,7 @@ int8_t sample_buffer_reset(sample_buffer_t * sample_buffer)
 
 }
 
-int8_t sample_buffer_put(sample_buffer_t * sample_buffer, float data)
+int8_t sample_buffer_put(sample_buffer_t * sample_buffer, fp_sample_t data)
 /*****************************************************************************
  *    Input    : The buffer data should be put into and the data to put in.
  *    Output   :
@@ -49,7 +53,7 @@ int8_t sample_buffer_put(sample_buffer_t * sample_buffer, float data)
 
 }
 
-int8_t sample_buffer_get(sample_buffer_t * sample_buffer, float * data)
+int8_t sample_buffer_get(sample_buffer_t * sample_buffer, fp_sample_t * data)
 /*****************************************************************************
  *    Input    : The buffer data is to be got from.
  *    Output   :
@@ -59,7 +63,7 @@ int8_t sample_buffer_get(sample_buffer_t * sample_buffer, float * data)
 
 }
 
-int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, float data, int z)
+int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, fp_sample_t data, uint16_t z)
 /*****************************************************************************
  *    Input    : The buffer data should be put into and the data to put in.
  *    Output   :
@@ -69,7 +73,7 @@ int8_t sample_buffer_put_z(sample_buffer_t * sample_buffer, float data, int z)
 
 }
 
-int8_t sample_buffer_get_z(sample_buffer_t * sample_buffer, float * data, int z)
+int8_t sample_buffer_get_z(sample_buffer_t * sample_buffer, fp_sample_t * data, uint16_t z)
 /*****************************************************************************
  *    Input    : The buffer data is to be got from.
  *    Output   :
