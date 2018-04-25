@@ -30,7 +30,7 @@
 /*****************************   Functions   *******************************/
 void mod_reverb_effekt( fp_sample_t *in, fp_sample_t *out)
 {
-  if(is_sw1_pressed())
+  if(is_digi_p2_pressed())
   {
   const float in_gain = -0.25;
   const float fb_gain = -0.05;
