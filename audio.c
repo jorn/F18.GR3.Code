@@ -27,6 +27,7 @@
 #include "global.h"
 #include "mod_vol.h"
 #include "mod_echo.h"
+#include "mod_reverb.h"
 
 /*****************************    Defines    *******************************/
 #define     MCB_POOL_SIZE     10
@@ -118,7 +119,9 @@ void audio_init()
   acb.pwm = TRUE;
 
   mcb_pool[0].active = TRUE;
-  mcb_pool[0].module = mod_echo_effekt;
+  mcb_pool[0].module = mod_reverb_effekt;
+  mcb_pool[1].active = TRUE;
+  mcb_pool[1].module = mod_echo_effekt;
 
   // Add volume module at the end
   mcb_pool[MCB_POOL_SIZE-1].active = TRUE;
