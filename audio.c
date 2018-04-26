@@ -69,7 +69,7 @@ void sample_handler( void )
   fp_sample_in.left_fp32 = (float)((sample.left) - 2048);
   fp_sample_in.right_fp32 = (float)((sample.right) - 2048);
 
-  sample_buffer_put( &fp_sample_in );
+  //sample_buffer_put( &fp_sample_in );
 
   for(int8_t i=0; i<MCB_POOL_SIZE; i++)
   {
@@ -81,6 +81,9 @@ void sample_handler( void )
     }
   }
 
+  sample_buffer_get_out( &fp_sample_in);
+  fp_sample_out.left_fp32 = fp_sample_in.left_fp32 + fp_sample_out.left_fp32;
+  fp_sample_out.right_fp32 = fp_sample_in.right_fp32 + fp_sample_out.right_fp32;
 
   // add 11 bit offset
   fp_sample_out.left_fp32 += 2048;

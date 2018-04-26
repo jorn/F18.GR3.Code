@@ -49,6 +49,13 @@ void sample_buffer_get(fp_sample_t * data);
  *    Function : Gets data from buffer.
  *******************************************************************************/
 
+void sample_buffer_get_out(fp_sample_t *data);
+/*****************************************************************************
+ *    Input    : The buffer data is to be got from.
+ *    Output   :
+ *    Function : Gets data from buffer, zeroes the drawer.
+ *******************************************************************************/
+
 void sample_buffer_put_z(fp_sample_t *data, uint16_t z);
 /*****************************************************************************
  *    Input    : The buffer data should be put into and the data to put in.

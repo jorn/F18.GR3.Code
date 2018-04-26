@@ -30,16 +30,20 @@
 /*****************************   Functions   *******************************/
 void mod_echo_effekt( fp_sample_t *in, fp_sample_t *out)
 {
-  if(is_digi_p2_pressed())
+  if(is_sw2_pressed())
   {
   const float gain = .5;
-  const uint16_t delay = 1999;
+  const uint16_t delay = 2000;
 
   fp_sample_t fp_sample;
-  sample_buffer_get_z( &fp_sample, delay);
 
-  out->left_fp32 = in->left_fp32 + (fp_sample.left_fp32 * gain);
-  out->right_fp32 = in->right_fp32 + (fp_sample.right_fp32 * gain);
+  fp_sample.left_fp32 = (in->left_fp32 * gain);
+  fp_sample.right_fp32 = (in->right_fp32 * gain);
+
+  sample_buffer_put_z(&fp_sample, delay);
+
+  out->left_fp32 = in->left_fp32;
+  out->right_fp32 = in->right_fp32;
   }
   else
   {

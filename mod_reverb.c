@@ -30,22 +30,22 @@
 /*****************************   Functions   *******************************/
 void mod_reverb_effekt( fp_sample_t *in, fp_sample_t *out)
 {
-  if(is_sw1_pressed())
+  if(is_sw1_pressed)
   {
   const float in_gain = -0.25;
   const float fb_gain = -0.05;
-  const uint16_t delay = 1500;
+  const uint16_t delay = 2000;
 
   fp_sample_t fp_sample;
-  sample_buffer_get_z( &fp_sample, delay);
+  sample_buffer_get(&fp_sample);
 
-  out->left_fp32 = in->left_fp32 + fp_sample.left_fp32;
-  out->right_fp32 = in->right_fp32 + fp_sample.right_fp32;
+  fp_sample.left_fp32 = ((in->left_fp32 * in_gain) + ((in->left_fp32 + fp_sample.left_fp32) * fb_gain));
+  fp_sample.right_fp32 = ((in->right_fp32 * in_gain) + ((in->left_fp32 + fp_sample.right_fp32) * fb_gain));
 
-  fp_sample.left_fp32 = ((out->left_fp32 * fb_gain) + (in->left_fp32 * in_gain));
-  fp_sample.right_fp32 = ((out->right_fp32 * fb_gain) + (in->right_fp32 * in_gain));
-  sample_buffer_put_z(&fp_sample, 1);
+  sample_buffer_put_z(&fp_sample, delay);
 
+  out->left_fp32 = in->left_fp32;
+  out->right_fp32 = in->right_fp32;
   }
   else
   {
