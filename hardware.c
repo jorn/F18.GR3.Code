@@ -43,7 +43,7 @@ INT8U is_sw1_pressed(void)
  *   Header description
  ******************************************************************************/
 {
-  return ((GPIO_PORTF_DATA_R & BIT_5) ? 0 : 1);
+  return ((GPIO_PORTF_DATA_R & BIT_4) ? 0 : 1);
 }
 
 INT8U is_sw2_pressed(void)
@@ -147,6 +147,10 @@ void init_digiswitch()
 
   // GPIO Interrupt Mask (GPIOIM)
   bit_set( GPIO_PORTA_IM_R, BIT_5 | BIT_6);     // Unmask interrupt for PA5 & PA6
+
+  // Set priority on INT0
+  bit_clear(NVIC_PRI0_R, NVIC_PRI0_INT0_M);
+  bit_set(NVIC_PRI0_R, 0b101<<5);               // Set interrupt priority 5
 
   // Enable NVIC interrupt 0
   bit_set(NVIC_EN0_R, 1 );
