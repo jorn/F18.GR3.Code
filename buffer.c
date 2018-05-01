@@ -88,7 +88,7 @@ void sample_buffer_put_z(fp_sample_t *data, uint16_t z)
 
   if( z < BUFFER_SIZE )
   {
-    index = (head + z + 1) <= (BUFFER_SIZE - 1) ? head + z : (head + z) - BUFFER_SIZE;
+    index = (head + z) <= (BUFFER_SIZE - 1) ? head + z : (head + z) - BUFFER_SIZE;
     buffer[index].left_fp32 += data->left_fp32;
     buffer[index].right_fp32 += data->right_fp32;
   }

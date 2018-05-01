@@ -43,7 +43,7 @@ INT8U is_sw1_pressed(void)
  *   Header description
  ******************************************************************************/
 {
-  return ((GPIO_PORTF_DATA_R & BIT_5) ? 0 : 1);
+  return ((GPIO_PORTF_DATA_R & BIT_4) ? 0 : 1);
 }
 
 INT8U is_sw2_pressed(void)
