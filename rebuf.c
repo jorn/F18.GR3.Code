@@ -18,14 +18,14 @@
  *****************************************************************************/
 
 /***************************** Include files ********************************/
-#include "buffer.h"
+#include "rebuf.h"
 /*****************************    Defines    ********************************/
 #define   BUFFER_SIZE   2001
 
 /*****************************   Constants   ********************************/
 
 /*****************************   Variables   ********************************/
-fp_sample_t buffer[BUFFER_SIZE];
+fp_sample_t effect_buffer[BUFFER_SIZE];
 uint16_t now = 0; //pointer to head in buffer
 /*****************************   Functions   *********************************
  *   Function : See General module specification (general.h-file).

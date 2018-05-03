@@ -18,7 +18,7 @@
 /***************************** Include files *******************************/
 #include <stdint.h>
 #include "audio.h"
-#include "buffer.h"
+#include "rebuf.h"
 #include "hardware.h"
 
 /*****************************    Defines    *******************************/
@@ -40,7 +40,7 @@ void mod_echo_effekt( fp_sample_t *in, fp_sample_t *out)
   fp_sample.left_fp32 = (in->left_fp32 * gain);
   fp_sample.right_fp32 = (in->right_fp32 * gain);
 
-  sample_buffer_put_z(&fp_sample, delay);
+  re_buffer_put_z(&fp_sample, delay);
 
   out->left_fp32 = in->left_fp32;
   out->right_fp32 = in->right_fp32;
