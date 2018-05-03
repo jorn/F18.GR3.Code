@@ -81,7 +81,7 @@ void sample_handler( void )
     }
   }
 
-  sample_buffer_get_out( &fp_sample_in);
+  re_buffer_get_out( &fp_sample_in);
   fp_sample_out.left_fp32 = fp_sample_in.left_fp32 + fp_sample_out.left_fp32;
   fp_sample_out.right_fp32 = fp_sample_in.right_fp32 + fp_sample_out.right_fp32;
 
