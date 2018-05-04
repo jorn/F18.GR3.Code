@@ -28,6 +28,7 @@
 #include "mod_vol.h"
 #include "mod_echo.h"
 #include "mod_reverb.h"
+#include "rebuf.h"
 
 /*****************************    Defines    *******************************/
 #define     MCB_POOL_SIZE     10

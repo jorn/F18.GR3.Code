@@ -38,8 +38,8 @@ void re_buffer_get(fp_sample_t *data)
  *    Function : Inserts data into the buffer.
  *******************************************************************************/
 {
-    data->left_fp32 = buffer[now].left_fp32;
-    data->right_fp32 = buffer[now].right_fp32;
+    data->left_fp32 = effect_buffer[now].left_fp32;
+    data->right_fp32 = effect_buffer[now].right_fp32;
 }
 
 void re_buffer_get_out(fp_sample_t *data)
@@ -49,11 +49,11 @@ void re_buffer_get_out(fp_sample_t *data)
  *    Function : Inserts data into the buffer.
  *******************************************************************************/
 {
-    data->left_fp32 = buffer[now].left_fp32;
-    data->right_fp32 = buffer[now].right_fp32;
+    data->left_fp32 = effect_buffer[now].left_fp32;
+    data->right_fp32 = effect_buffer[now].right_fp32;
 
-    buffer[now].left_fp32 = 0;
-    buffer[now].right_fp32 = 0;
+    effect_buffer[now].left_fp32 = 0;
+    effect_buffer[now].right_fp32 = 0;
 
     if (now < (BUFFER_SIZE - 1))
         now++;
@@ -76,15 +76,15 @@ void re_buffer_put_z(fp_sample_t *data, uint16_t z)
     if (z < BUFFER_SIZE)
     {
         index = (now + z) <= (BUFFER_SIZE - 1) ? now + z : (now + z) - BUFFER_SIZE;
-        if (buffer[index].left_fp32 || buffer[index].right_fp32)
+        if (effect_buffer[index].left_fp32 || effect_buffer[index].right_fp32)
         {
-            buffer[index].left_fp32 = ((buffer[index].left_fp32 / 2) + (data->left_fp32 / 2));
-            buffer[index].right_fp32 = ((buffer[index].right_fp32 / 2) + (data->right_fp32 / 2));
+            effect_buffer[index].left_fp32 = ((effect_buffer[index].left_fp32 / 2) + (data->left_fp32 / 2));
+            effect_buffer[index].right_fp32 = ((effect_buffer[index].right_fp32 / 2) + (data->right_fp32 / 2));
         }
         else
         {
-            buffer[index].left_fp32 += data->left_fp32;
-            buffer[index].right_fp32 += data->right_fp32;
+            effect_buffer[index].left_fp32 += data->left_fp32;
+            effect_buffer[index].right_fp32 += data->right_fp32;
         }
     }
 }
