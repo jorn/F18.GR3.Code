@@ -28,6 +28,7 @@
 #include "mod_vol.h"
 #include "mod_echo.h"
 #include "mod_reverb.h"
+#include "rebuf.h"
 
 /*****************************    Defines    *******************************/
 #define     MCB_POOL_SIZE     10
@@ -59,7 +60,7 @@ static mcb_t mcb_pool[MCB_POOL_SIZE];
 void sample_handler( void )
 {
   sample_int_clear();
-  debug_pins_high( DEBUG_P0 );
+  debug_pins_high( DEBUG_P1 );
 
   static sample_t sample;
   static fp_sample_t fp_sample_in;
@@ -69,7 +70,7 @@ void sample_handler( void )
   fp_sample_in.left_fp32 = (float)((sample.left) - 2048);
   fp_sample_in.right_fp32 = (float)((sample.right) - 2048);
 
-  sample_buffer_put( &fp_sample_in );
+  //sample_buffer_put( &fp_sample_in );
 
   for(int8_t i=0; i<MCB_POOL_SIZE; i++)
   {
@@ -81,6 +82,9 @@ void sample_handler( void )
     }
   }
 
+  re_buffer_get_out( &fp_sample_in);
+  fp_sample_out.left_fp32 = fp_sample_in.left_fp32 + fp_sample_out.left_fp32;
+  fp_sample_out.right_fp32 = fp_sample_in.right_fp32 + fp_sample_out.right_fp32;
 
   // add 11 bit offset
   fp_sample_out.left_fp32 += 2048;
@@ -97,7 +101,7 @@ void sample_handler( void )
     sample_out_spi( &sample );
 
 
-  debug_pins_low( DEBUG_P0 );
+  debug_pins_low( DEBUG_P1 );
 }
 
 void audio_pwm_on()
@@ -117,10 +121,10 @@ void audio_init()
   acb.dac = TRUE;
   acb.pwm = TRUE;
 
-  mcb_pool[1].active = FALSE;
-  mcb_pool[1].module = mod_reverb_effekt;
   mcb_pool[0].active = TRUE;
-  mcb_pool[0].module = mod_echo_effekt;
+  mcb_pool[0].module = mod_reverb_effekt;
+  mcb_pool[1].active = TRUE;
+  mcb_pool[1].module = mod_echo_effekt;
 
   // Add volume module at the end
   mcb_pool[MCB_POOL_SIZE-1].active = TRUE;
