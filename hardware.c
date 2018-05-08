@@ -20,7 +20,6 @@
 #include "global.h"
 #include "emp_type.h"
 #include "tm4c123gh6pm.h"
-#include "systick.h"
 #include "hardware.h"
 
 /*****************************    Defines    *******************************/
@@ -57,6 +56,16 @@ INT8U is_sw2_pressed(void)
 INT8U is_digi_p2_pressed(void)
 {
   return ((GPIO_PORTA_DATA_R & BIT_7 ) ? 0 : 1);
+}
+
+INT8U is_digi_A(void)
+{
+  return ((GPIO_PORTA_DATA_R & BIT_5 ) ? 0 : 1);
+}
+
+INT8U is_digi_B(void)
+{
+  return ((GPIO_PORTA_DATA_R & BIT_6 ) ? 0 : 1);
 }
 
 
@@ -137,16 +146,19 @@ void init_digiswitch()
   bit_set  ( GPIO_PORTA_DEN_R, 0b11100000 );
 
   // Interrupt Sense  (GPIOIS)
-  bit_clear( GPIO_PORTA_IS_R, BIT_5 | BIT_6);   // Set PA5 & PA6 edge-sensitive
+  //bit_clear( GPIO_PORTA_IS_R, BIT_5 | BIT_6);   // Set PA5 & PA6 edge-sensitive
+  bit_clear( GPIO_PORTA_IS_R, BIT_5 );   // Set PA5 edge-sensitive
 
   //  Interrupt Both Edges (GPIOIBE)
-  bit_clear( GPIO_PORTA_IBE_R, BIT_5 | BIT_6);
+  //bit_clear( GPIO_PORTA_IBE_R, BIT_5 | BIT_6);
+  bit_set( GPIO_PORTA_IBE_R, BIT_5);
 
   // GPIO Interrupt Event (GPIOIEV)
-  bit_set( GPIO_PORTA_IEV_R, BIT_5 | BIT_6);    // Set rising edge or a High level
+  //bit_set( GPIO_PORTA_IEV_R, BIT_5 | BIT_6);    // Set rising edge or a High level
 
   // GPIO Interrupt Mask (GPIOIM)
-  bit_set( GPIO_PORTA_IM_R, BIT_5 | BIT_6);     // Unmask interrupt for PA5 & PA6
+  //bit_set( GPIO_PORTA_IM_R, BIT_5 | BIT_6);     // Unmask interrupt for PA5 & PA6
+  bit_set( GPIO_PORTA_IM_R, BIT_5);     // Unmask interrupt for PA5 & PA6
 
   // Set priority on INT0
   bit_clear(NVIC_PRI0_R, NVIC_PRI0_INT0_M);
@@ -154,7 +166,47 @@ void init_digiswitch()
 
   // Enable NVIC interrupt 0
   bit_set(NVIC_EN0_R, 1 );
+}
 
+void init_keypad( void )
+/*****************************************************************************
+*   Input    :
+*   Output   :
+*   Function :
+******************************************************************************/
+{
+  // Activate GPIO port A and E
+  bit_set(SYSCTL_RCGCGPIO_R, SYSCTL_RCGCGPIO_R0 | SYSCTL_RCGCGPIO_R4);
+
+  // GPIO PA2..PA4 as output
+  bit_set(GPIO_PORTA_DIR_R, BIT_2 | BIT_3 | BIT_4);
+  bit_set(GPIO_PORTA_DEN_R, BIT_2 | BIT_3 | BIT_4);
+
+  // GPIO PE0..PE3 as INPUT no pullup
+  bit_clear(GPIO_PORTE_DIR_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+  bit_set(GPIO_PORTE_DEN_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+
+  // Set X1-X3 high
+  bit_set(GPIO_PORTA_DATA_R, BIT_2 | BIT_3 | BIT_4 );
+
+  // Interrupt Sense  (GPIOIS)
+  bit_clear(GPIO_PORTE_IS_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+
+  // Interrupt Both Edges (GPIOBE)
+  bit_clear(GPIO_PORTE_IBE_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+
+  // GPIO Interrupt Event (GPIOIEV)
+  bit_set(GPIO_PORTE_IEV_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+
+  // GPIO Interrupt Mask (GPIOIM)
+  bit_set(GPIO_PORTE_IM_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+
+  // Set priority on INT4
+  bit_clear(NVIC_PRI1_R, NVIC_PRI1_INT4_M);
+  bit_set(NVIC_PRI1_R, 0b101 << 5);               // Set interrupt priority 5
+
+  // Enable NVIC interrupt 4
+  bit_set(NVIC_EN0_R, 1 << 4);
 }
 
 
@@ -521,7 +573,6 @@ void sample_out_spi(sample_t *sample)
   //bit_clear (GPIO_PORTB_DATA_R, 1<<3);  // Pull LDAC low and latch samples
 }
 
-
 void sample_in(sample_t *sample)
 {
   if (!( ADC0_SSFSTAT3_R & ADC_SSFSTAT3_EMPTY))
@@ -536,6 +587,24 @@ void sample_in(sample_t *sample)
 
   ADC0_PSSI_R |= ADC_PSSI_SS3;
   ADC1_PSSI_R |= ADC_PSSI_SS3;
+}
+
+void enable_global_int()
+/*****************************************************************************
+ *   Header description
+ ******************************************************************************/
+{
+  // enable interrupts.
+  __asm("cpsie i");
+}
+
+void disable_global_int()
+/*****************************************************************************
+ *   Header description
+ ******************************************************************************/
+{
+  // disable interrupts.
+  __asm("cpsid i");
 }
 
 void hardware_init(INT32U sample_freq)
@@ -567,7 +636,7 @@ void hardware_init(INT32U sample_freq)
 
   init_digiswitch();
 
-  systick_init();
+  init_keypad();
 
   // Enable global interrupt
   enable_global_int();

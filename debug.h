@@ -27,8 +27,8 @@
 #define       DEBUG_PORT      GPIO_PORTB_DATA_R
 
 // Debug PIN-MAP on DEBUG_PORT
-#define       DEBUG_P1        0x1
-#define       DEBUG_P2        0x2
+#define       DEBUG_P0        0x1
+#define       DEBUG_P1        0x2
 
 
 

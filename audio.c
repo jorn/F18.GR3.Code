@@ -59,7 +59,7 @@ static mcb_t mcb_pool[MCB_POOL_SIZE];
 void sample_handler( void )
 {
   sample_int_clear();
-  debug_pins_high( DEBUG_P1 );
+  debug_pins_high( DEBUG_P0 );
 
   static sample_t sample;
   static fp_sample_t fp_sample_in;
@@ -97,7 +97,7 @@ void sample_handler( void )
     sample_out_spi( &sample );
 
 
-  debug_pins_low( DEBUG_P1 );
+  debug_pins_low( DEBUG_P0 );
 }
 
 void audio_pwm_on()

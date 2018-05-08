@@ -50,8 +50,8 @@ typedef enum {HIGH, LOW} pin_state;
 
 /*****************************   Variables   *******************************/
 // Internal display buffer array
-static INT8U  lcd_display_buffer[LCD_BUF_SIZE];
-static INT32U lcd_buffer_dirty;
+INT8U  lcd_display_buffer[LCD_BUF_SIZE];
+INT32U lcd_buffer_dirty;
 
 // Cursor position in display buffer
 INT8U buffer_x = 0;
@@ -199,7 +199,7 @@ void lcd_write_char(char ch)
  ******************************************************************************/
 {
   lcd_display_buffer[buffer_offset] = ch;
-  buffer_offset++;
+  buffer_offset = buffer_offset < LCD_BUF_SIZE ? buffer_offset+1 : 0;
 }
 
 void lcd_buffer_task(void *pvParameters)

@@ -32,8 +32,8 @@
 
 /*****************************    Defines    *******************************/
 
-
 /*****************************   Variables   *******************************/
+
 /*****************************   Functions   *******************************/
 
 int putChar()
@@ -61,19 +61,33 @@ void emp_board_alive(void *pvParameters)
 }
 
 
-
-
 void status_display(void *pvParameters)
 {
   while (1)
   {
-    char *value;
+    uint8_t value;
 
     if (xHIDQueue != 0)
     {
-      if (xQueueReceive(xHIDQueue, &(value), (TickType_t) 1))
+      if (xQueueReceive(xHIDQueue, &value, (TickType_t) 1))
       {
-        lcd_write_char(*value+0x20);
+        if (value == 0x1b)
+        {
+          xQueueReceive(xHIDQueue, &value, (TickType_t) 1);
+
+          switch (value)
+          {
+            case 0x10:
+              lcd_write_char(0x3C);
+              break;
+            case 0x01:
+              lcd_write_char(0x3E);
+              break;
+          }
+        }
+        else
+          lcd_write_char(value);
+
       }
     }
     vTaskDelay(100);
@@ -128,6 +142,8 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   taskDISABLE_INTERRUPTS();
   for( ;; );
 }
+
+
 
 
 

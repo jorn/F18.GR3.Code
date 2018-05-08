@@ -26,183 +26,129 @@
 #include "lcd1602.h"
 #include "debug.h"
 #include "hardware.h"
+#include "systick.h"
+
 
 /*****************************    Defines    *******************************/
+#define     ESC      0x1B
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
 extern QueueHandle_t xHIDQueue;
 
-
+/*****************************   Functions   *******************************/
 void digiswitch_handler(void)
 {
-  static INT8U state[2][2] = {{ 0, 0 },{ 0, 0 }};
-  const INT8U A = 0;                    // PA5
-  const INT8U B = 1;                    // PA6
-
   /* We have not woken a task at the start of the ISR. */
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  int8_t out = 0;
+  uint8_t out = 0;
+  const uint8_t esc = ESC;
+  static uint32_t last_ticks = 0;
 
-  if( GPIO_PORTA_RIS_R & BIT_5 )
+  if (ticks() - last_ticks >= 1)
   {
-    bit_set( GPIO_PORTA_ICR_R, BIT_5);      // Clear int. for PA5
-    state[A][0] = 1;
+    // if A,B same -> CCW=0x10 else CW=0x01
+    out = is_digi_A() == is_digi_B() ? 0x10 : 0x01;
+
+    if (out)
+    {
+      xQueueSendToBackFromISR(xHIDQueue, &esc, &xHigherPriorityTaskWoken);
+      xQueueSendToBackFromISR(xHIDQueue, &out, &xHigherPriorityTaskWoken);
+    }
+
+    last_ticks = ticks();
   }
 
-  if( GPIO_PORTA_RIS_R & BIT_6 )
-  {
-    bit_set( GPIO_PORTA_ICR_R, BIT_6);      // Clear int. for PA6
-    state[B][0] = 1;
-  }
+  // Clear int. for PA5
+  bit_set(GPIO_PORTA_ICR_R, BIT_5);
 
-  // Switch logic
-  if( state[B][0] && state[A][1] )
-  {  // CCW ??
-    out = 1;
-    emp_clear_leds();
-    emp_set_led( EMP_LED_RED );
-  }
-
-  if( state[A][0] && state[B][1] )
-  {   // CW ??
-    out = 2;
-    emp_clear_leds();
-    emp_set_led( EMP_LED_GREEN );
-  }
-
-//  if(out)
-//    xQueueSendToBackFromISR( xHIDQueue, &out, &xHigherPriorityTaskWoken );
-
-
-  // Store switch history
-  state[A][1] = state[A][0];
-  state[A][0] = 0;
-  state[B][1] = state[B][0];
-  state[B][0] = 0;
-
-  portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
-
+  portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
-
-/*****************************   Functions   *******************************/
-void digiswitch_task(void *pvParameters)
+void keypad_handler(void)
 {
-  static INT8U AB[2][2] = { {0,0},{0,0} };     // AB[N]
-  static INT8U YY[2]    = { 0,0 };             // YY[AB]
-  //static INT16U deg     = 0;
+  /* We have not woken a task at the start of the ISR. */
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  uint8_t out = 0, x=0;
+  static uint32_t last_ticks = 0;
+  const uint8_t keypad_acsii[4][3] = { "#0*", "987", "654", "321" };
 
-  const INT8U A = 0;
-  const INT8U B = 1;
+  //bit_clear(GPIO_PORTE_IM_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
 
-  //const TickType_t xDelay = 1 / portTICK_PERIOD_MS;
+  debug_pins_high(DEBUG_P1);
 
-  while(1)
+  if (ticks() - last_ticks > 200)
   {
-    // Check Digi P2
-    if( !( GPIO_PORTA_DATA_R & 0b10000000) )
+    bit_clear(GPIO_PORTA_DATA_R, 0b11000);
+    __asm("nop");__asm("nop");__asm("nop");__asm("nop");
+    __asm("nop");__asm("nop");__asm("nop");__asm("nop");
+    __asm("nop");__asm("nop");__asm("nop");__asm("nop");
+    // get int. mask from PORTE
+    uint8_t mask = GPIO_PORTE_RIS_R & 0b1111;
+
+    while ( x < 3 )
     {
-      // Digiswitch click
-      xQueueSendToBack( xHIDQueue, "c", 10 );
+      if ( GPIO_PORTE_DATA_R & 0b1111)
+      {
+        switch ( mask )
+        {
+          case 0x01:
+            out = (uint8_t) keypad_acsii[0][x];
+            break;
+          case 0x02:
+            out = (uint8_t) keypad_acsii[1][x];
+            break;
+          case 0x04:
+            out = (uint8_t) keypad_acsii[2][x];
+            break;
+          case 0x08:
+            out = (uint8_t) keypad_acsii[3][x];
+            break;
+          default:
+            out = 0x41;
+        }
+        x=3;
+      }
+      x++;
+      bit_set(GPIO_PORTA_DATA_R, 1 << (x + 2));
+      __asm("nop");__asm("nop");__asm("nop");__asm("nop");
+      __asm("nop");__asm("nop");__asm("nop");__asm("nop");
+      __asm("nop");__asm("nop");__asm("nop");__asm("nop");
+      //bit_clear(GPIO_PORTA_DATA_R, 0b11100);
     }
 
-    // Read inputs
-    AB[1][A] = !(GPIO_PORTA_DATA_R & 0b00100000);    // Read Digi A
-    AB[1][B] = !(GPIO_PORTA_DATA_R & 0b01000000);    // Read Digi B
+    bit_set(GPIO_PORTA_DATA_R, 0b11100);
 
-    if( (AB[1][A] != AB[0][A]) || (AB[1][B] != AB[0][B]) )
+    //if ( GPIO_PORTE_RIS_R && BIT_0 )
+
+    if (out)
     {
-      YY[A] = AB[1][A] != AB[0][A];
-      YY[B] = AB[1][B] != AB[0][B];
-
-      if( AB[1][A] == AB[1][B] )
-      {
-        if( !YY[A] && YY[B] )
-        {
-          // right toggle
-          xQueueSendToBack( xHIDQueue, "R", 10 );
-
-          //emp_toggle_led(LED_YELLOW);
-          //deg += 6;
-          //if(deg==360)
-          //  deg = 0;
-        }
-        else if ( YY[A] && !YY[B] )
-        {
-          xQueueSendToBack( xHIDQueue, "L", 10 );
-          //emp_toggle_led(LED_GREEN);
-          //if(deg == 0)
-          //  deg = 360-6;
-          //else
-          //  deg -= 6;
-        }
-        else
-        {
-          // spike
-        }
-      }
-      else
-      {
-        if( YY[A] && !YY[B] )
-        {
-          xQueueSendToBack( xHIDQueue, "R", 10 );
-          //emp_toggle_led(LED_YELLOW);
-          //deg += 6;
-          //if(deg==360)
-          //  deg = 0;
-        }
-        else if ( !YY[A] && YY[B] )
-        {
-          xQueueSendToBack( xHIDQueue, "L", 10 );
-          //emp_toggle_led(LED_GREEN);
-          //if(deg == 0)
-          //  deg = 360-6;
-          //else
-          //  deg -= 6;
-        }
-        else
-        {
-          // spike
-        }
-      }
-
-      AB[0][A] = AB[1][A];
-      AB[0][B] = AB[1][B];
+      xQueueSendToBackFromISR(xHIDQueue, &out, &xHigherPriorityTaskWoken);
     }
+    last_ticks = ticks();
 
-    //lcd_set_cursor(0, 0);
-    //lcd_write("Angel :    ");
-    //lcd_set_cursor(8, 0);
-    //char b[3];
-    //lcd_write( itoa(deg, b) );
 
-    //vTaskDelay(xDelay);
   }
+  debug_pins_low(DEBUG_P1);
+
+  // clear all keypad interrupts
+  bit_set(GPIO_PORTE_ICR_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+  //bit_set(GPIO_PORTE_IM_R, BIT_0 | BIT_1 | BIT_2 | BIT_3);
+
+  portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
 BaseType_t hid_init()
 {
   portBASE_TYPE return_value = pdTRUE;
 
-  xHIDQueue = xQueueCreate( 5, sizeof( int8_t ) );
+  xHIDQueue = xQueueCreate(20, sizeof(uint8_t));
 
-  if( xHIDQueue != NULL )
-  {
-
-    /*
-  return_value &= xTaskCreate( digiswitch_task, "HID Digiswitch",
-                               USERTASK_STACK_SIZE, NULL, LOW_PRIO , NULL);
-*/
-  }
-  else
+  if (xHIDQueue == NULL)
     return_value = pdFALSE;
 
-  return( return_value );
+  return (return_value);
 }
-
-
-
 
 /****************************** End Of Module *******************************/
