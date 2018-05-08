@@ -20,6 +20,7 @@
 #include "audio.h"
 #include "rebuf.h"
 #include "hardware.h"
+#include "buffer.h"
 
 /*****************************    Defines    *******************************/
 
