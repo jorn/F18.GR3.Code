@@ -16,20 +16,16 @@
  *
  *****************************************************************************/
 
-#ifndef BUFFER_H_
-#define BUFFER_H_
+#ifndef REBUFFER_H_
+#define REBUFFER_H_
 
 /***************************** Include files *******************************/
 #include <stdint.h>
+#include "buffer.h"
 
 /*****************************    Defines    *******************************/
 
 /********************** External declaration of Variables ******************/
-typedef struct
-{
-    float left_fp32;
-    float right_fp32;
-} fp_sample_t;
 
 /*****************************   Constants   *******************************/
 
@@ -56,4 +52,4 @@ void re_buffer_put_z(fp_sample_t *data, uint16_t z);
  *    Function : Inserts data into the buffer.
  *******************************************************************************/
 
-#endif /* BUFFER_H_ */
+#endif /* REBUFFER_H_ */
