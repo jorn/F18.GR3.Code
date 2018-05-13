@@ -1,7 +1,7 @@
 /*****************************************************************************
  * University of Southern Denmark
  *
- * MODULENAME.: utils.h
+ * MODULENAME.: ui.h
  *
  * PROJECT....: F18.GR3
  *
@@ -12,17 +12,15 @@
  * Date    Id    Change
  * YYMMDD
  * --------------------
- * Apr 19, 2018	jorn    Module created.
+ * May 9, 2018	jorn    Module created.
  *
  *****************************************************************************/
 
-#ifndef UTILS_H_
-#define UTILS_H_
+#ifndef UI_H_
+#define UI_H_
 
 /***************************** Include files *******************************/
-#include <stdint.h>
-#include "emp_type.h"
-
+#include "task.h"
 
 /*****************************    Defines    *******************************/
 
@@ -31,12 +29,14 @@
 /*****************************   Constants   *******************************/
 
 /*************************  Function interfaces ****************************/
-char* itoa(int i, char b[]);
+void ui_init(void);
 /*****************************************************************************
  *   Input    : 
  *   Output   : 
  *   Function : 
  ******************************************************************************/
+void ui_task(void *pvParameters);
+
 
 /****************************** End Of Module *******************************/
-#endif /* UTILS_H_ */
+#endif /* UI_H_ */

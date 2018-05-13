@@ -17,6 +17,7 @@
 
 /***************************** Include files *******************************/
 #include <stdint.h>
+#include <stdlib.h>
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
 #include "systick.h"
@@ -29,6 +30,7 @@
 #include "debug.h"
 #include "queue.h"
 #include "audio.h"
+#include "ui.h"
 
 /*****************************    Defines    *******************************/
 
@@ -60,37 +62,14 @@ void emp_board_alive(void *pvParameters)
   }
 }
 
-
-void status_display(void *pvParameters)
+void led(void *pvParameters)
 {
-  while (1)
+  while(1)
   {
-    uint8_t value;
+    uint8_t rnum = rand() % 7;
 
-    if (xHIDQueue != 0)
-    {
-      if (xQueueReceive(xHIDQueue, &value, (TickType_t) 1))
-      {
-        if (value == 0x1b)
-        {
-          xQueueReceive(xHIDQueue, &value, (TickType_t) 1);
-
-          switch (value)
-          {
-            case 0x10:
-              lcd_write_char(0x3C);
-              break;
-            case 0x01:
-              lcd_write_char(0x3E);
-              break;
-          }
-        }
-        else
-          lcd_write_char(value);
-
-      }
-    }
-    vTaskDelay(100);
+    emp_toggle_led(rnum);
+    vTaskDelay(500);
   }
 }
 
@@ -99,22 +78,26 @@ int main(void)
 {
   portBASE_TYPE return_value = pdTRUE;
 
+  srand(time(NULL));
+
   hardware_init(44100);      // Init the hardware to Fs=44.100 Hz
 
   emp_clear_leds();
 
+  lcd_init();               // Init the lcd_driver
+
   audio_init();
+
+  return_value &= hid_init();
 
   return_value &= xTaskCreate( emp_board_alive, "EMP Board Alive",
                                USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
+  return_value &= xTaskCreate( led, "LED Fun",
+                               USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
-  return_value &= xTaskCreate( status_display, "Status Display",
-                               USERTASK_STACK_SIZE, NULL, MED_PRIO, NULL);
-
-  lcd_init();           // Init the lcd_driver
-
-  return_value &= hid_init();
+  return_value &= xTaskCreate( ui_task, "UI Display",
+                               USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
 
   if (return_value != pdTRUE)
   {
@@ -142,9 +125,4 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   taskDISABLE_INTERRUPTS();
   for( ;; );
 }
-
-
-
-
-
 /****************************** End Of Module *******************************/

@@ -28,6 +28,7 @@
 #include "mod_vol.h"
 #include "mod_echo.h"
 #include "mod_reverb.h"
+#include "buffer.h"
 #include "rebuf.h"
 
 /*****************************    Defines    *******************************/
@@ -55,18 +56,28 @@ typedef struct {
 
 static mcb_t mcb_pool[MCB_POOL_SIZE];
 
+uint8_t cpu_load = 0;
 
 /*****************************   Functions   *******************************/
+uint8_t get_cpu_load()
+{
+  return cpu_load;
+}
+
 void sample_handler( void )
 {
   sample_int_clear();
-  debug_pins_high( DEBUG_P1 );
 
   static sample_t sample;
   static fp_sample_t fp_sample_in;
   static fp_sample_t fp_sample_out;
 
   sample_in( &sample );
+  if(!acb.stereo)
+  {
+    sample.right = sample.left;
+  }
+
   fp_sample_in.left_fp32 = (float)((sample.left) - 2048);
   fp_sample_in.right_fp32 = (float)((sample.right) - 2048);
 
@@ -100,8 +111,7 @@ void sample_handler( void )
   if( acb.dac )
     sample_out_spi( &sample );
 
-
-  debug_pins_low( DEBUG_P1 );
+  cpu_load = (TIMER3_TAR_R * 100) / TIMER3_TAILR_R;
 }
 
 void audio_pwm_on()
@@ -114,14 +124,16 @@ void audio_pwm_off()
   acb.pwm = FALSE;
 }
 
-
 void audio_init()
 {
   acb.stereo = TRUE;
   acb.dac = TRUE;
   acb.pwm = TRUE;
 
-  mcb_pool[0].active = TRUE;
+  // Set PB3 low for LDAC
+  bit_clear( GPIO_PORTB_DATA_R, BIT_3);
+
+  mcb_pool[0].active = FALSE;
   mcb_pool[0].module = mod_reverb_effekt;
   mcb_pool[1].active = TRUE;
   mcb_pool[1].module = mod_echo_effekt;
@@ -129,6 +141,9 @@ void audio_init()
   // Add volume module at the end
   mcb_pool[MCB_POOL_SIZE-1].active = TRUE;
   mcb_pool[MCB_POOL_SIZE-1].module = mod_vol_effekt;
+
+  mod_vol_init();
+  mod_echo_init();
 }
 
 

@@ -99,6 +99,19 @@ void emp_toggle_status_led()
   GPIO_PORTD_DATA_R ^= 0x40;
 }
 
+void emp_toggle_led(INT8U led)
+{
+  // Set bit pattern bit2-bit0 on for led_color on PF1-PF3
+  if (led & 0x01)
+    GPIO_PORTF_DATA_R ^= 0x08;
+
+  if (led & 0x02)
+    GPIO_PORTF_DATA_R ^= 0x04;
+
+  if (led & 0x04)
+    GPIO_PORTF_DATA_R ^= 0x02;
+}
+
 void emp_clear_leds()
 {
   emp_set_led( ~EMP_LED_ALL );
@@ -425,8 +438,14 @@ void spi_init()
   // Digital enable pins
   GPIO_PORTB_DEN_R |= (1<<4 | 1<<5 | 1<<6 | 1<<7);
 
+  // Digital ebanle PB3
+  GPIO_PORTB_DEN_R |= (1<<3);
+
   // Set direction to output for CLK, SS and TX pins
   GPIO_PORTB_DIR_R |= (1<<4 | 1<<5 | 1<<7);
+
+  // Set direction to output for PB3
+  GPIO_PORTB_DIR_R |= (1<<3);
 
   // GPIO PullUp Resistor (GPIOPUR)
   GPIO_PORTB_PUR_R |=  (1<<6);    // pull up on SSI2RX pin 4

@@ -337,6 +337,8 @@ BaseType_t lcd_init()
 
   lcd_clear();
 
+  lcd_set_custom_font();
+
   return_value &= xTaskCreate( lcd_buffer_task , "LCD",
                                  USERTASK_STACK_SIZE, NULL, MED_PRIO, NULL);
 

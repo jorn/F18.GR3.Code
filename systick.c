@@ -22,9 +22,8 @@
 
 /*****************************   Variables   *******************************/
 volatile uint32_t _ticks = 0;
+
 /*****************************   Functions   *******************************/
-
-
 void vApplicationTickHook( void )
 {
   _ticks++;

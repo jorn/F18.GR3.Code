@@ -102,6 +102,7 @@ void sample_in(sample_t *sample);
 INT8U is_digi_p2_pressed(void);
 INT8U is_digi_A(void);
 INT8U is_digi_B(void);
+void emp_toggle_led(INT8U led);
 
 void hardware_init(INT32U sample_freq);
 /*****************************************************************************

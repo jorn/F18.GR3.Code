@@ -31,6 +31,7 @@
 
 /*************************  Function interfaces ****************************/
 void audio_init();
+uint8_t get_cpu_load();
 void audio_pwm_on();
 void audio_pwm_off();
 float get_sample(uint16_t offset);
