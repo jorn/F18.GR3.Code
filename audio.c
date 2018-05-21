@@ -28,6 +28,7 @@
 #include "mod_vol.h"
 #include "mod_echo.h"
 #include "mod_reverb.h"
+#include "mod_filter.h"
 #include "buffer.h"
 #include "rebuf.h"
 
@@ -144,6 +145,7 @@ void audio_init()
 
   mod_vol_init();
   mod_echo_init();
+  mod_filter_init();
 }
 
 

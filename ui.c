@@ -27,6 +27,7 @@
 #include "mod_vol.h"
 #include "mod_echo.h"
 #include "mod_reverb.h"
+#include "mod_filter.h"
 
 /*****************************    Defines    *******************************/
 
@@ -151,6 +152,17 @@ void ui_init(void)
   menuitem = create_menuitem("Reverb delay");
   menuitem->function = mod_reverb_setdelay;
   add_menuitem(revbmenu, menuitem);
+
+  menuitem = create_menuitem("Filter");
+  add_menuitem(rootmenu, menuitem);
+
+  menu_t *filtermenu = create_menu();
+  filtermenu->parentmenu = rootmenu;
+  menuitem->childmenu = filtermenu;
+
+  menuitem = create_menuitem("Filter cutoff");
+  menuitem->function = mod_filter_setfcutoff;
+  add_menuitem(filtermenu, menuitem);
 
   menuitem = create_menuitem("<-Back");
   menuitem->childmenu = rootmenu;
