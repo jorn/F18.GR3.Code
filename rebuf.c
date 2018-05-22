@@ -22,12 +22,12 @@
 #include "buffer.h"
 
 /*****************************    Defines    ********************************/
-#define   BUFFER_SIZE   2001
+#define   RE_BUFFER_SIZE   2001
 
 /*****************************   Constants   ********************************/
 
 /*****************************   Variables   ********************************/
-fp_sample_t effect_buffer[BUFFER_SIZE];
+fp_sample_t effect_buffer[RE_BUFFER_SIZE];
 uint16_t now = 0; //pointer to head in buffer
 /*****************************   Functions   *********************************
  *   Function : See General module specification (general.h-file).
@@ -57,7 +57,7 @@ void re_buffer_get_out(fp_sample_t *data)
     effect_buffer[now].left_fp32 = 0;
     effect_buffer[now].right_fp32 = 0;
 
-    if (now < (BUFFER_SIZE - 1))
+    if (now < (RE_BUFFER_SIZE - 1))
         now++;
     else
     {
@@ -75,9 +75,9 @@ void re_buffer_put_z(fp_sample_t *data, uint16_t z)
 {
     uint16_t index;
 
-    if (z < BUFFER_SIZE)
+    if (z < RE_BUFFER_SIZE)
     {
-        index = (now + z) <= (BUFFER_SIZE - 1) ? now + z : (now + z) - BUFFER_SIZE;
+        index = (now + z) <= (RE_BUFFER_SIZE - 1) ? now + z : (now + z) - RE_BUFFER_SIZE;
         if (effect_buffer[index].left_fp32 || effect_buffer[index].right_fp32)
         {
             effect_buffer[index].left_fp32 = ((effect_buffer[index].left_fp32 / 2) + (data->left_fp32 / 2));
