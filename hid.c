@@ -64,7 +64,7 @@ void digiswitch_handler(void)
   uint8_t func = 0;
   struct hid_msg msg;
 
-  if (ticks() - last_ticks >= 1)
+  if (ticks() - last_ticks >= 150)
   {
     // if A,B same -> CCW else CW
     func = is_digi_A() == is_digi_B() ? HID_FUNC_DIGILEFT : HID_FUNC_DIGIRIGHT;
@@ -77,8 +77,9 @@ void digiswitch_handler(void)
       xQueueSendToBackFromISR(xHIDQueue, &msg, &xHigherPriorityTaskWoken);
     }
 
-    last_ticks = ticks();
+
   }
+  last_ticks = ticks();
 
   // Clear int. for PA5
   bit_set(GPIO_PORTA_ICR_R, BIT_5);
