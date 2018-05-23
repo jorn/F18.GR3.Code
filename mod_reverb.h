@@ -13,6 +13,7 @@
  * YYMMDD
  * --------------------
  * Apr 25, 2018	SoF    Module created.
+ * Apr 27, 2018 SoF    Functions redesigned.
  *
  *****************************************************************************/
 
@@ -42,7 +43,7 @@ void mod_reverb_init( void );
 /*****************************************************************************
  *   Input    :
  *   Output   :
- *   Function :
+ *   Function : Initialize the reverb module.
  ******************************************************************************/
 
 BOOLEAN mod_reverb_setgain();
