@@ -13,6 +13,7 @@
  * YYMMDD
  * --------------------
  * Apr 24, 2018	jorn    Module created.
+ * Apr 27, 2018 SoF     Functions redesigned.
  *
  *****************************************************************************/
 
@@ -42,7 +43,7 @@ void mod_echo_init( void );
 /*****************************************************************************
  *   Input    :
  *   Output   :
- *   Function :
+ *   Function : Initialize the echo module.
  ******************************************************************************/
 
 BOOLEAN mod_echo_setdelay();

@@ -42,7 +42,7 @@ void mod_vol_init( void );
 /*****************************************************************************
  *   Input    :
  *   Output   :
- *   Function :
+ *   Function : Initialize the volume control module.
  ******************************************************************************/
 
 BOOLEAN mod_vol_setvol();

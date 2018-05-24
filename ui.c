@@ -162,6 +162,7 @@ void ui_init(void)
 
   menuitem = create_menuitem("Filter cutoff");
   menuitem->function = mod_filter_setfcutoff;
+  menuitem->sw2_func = mod_filter_init;
   add_menuitem(filtermenu, menuitem);
 
   menuitem = create_menuitem("<-Back");
