@@ -75,7 +75,7 @@ BOOLEAN mod_filter_setfcutoff(void)
     lcd_write("Cutoff frequency (Hz)");
     lcd_set_cursor(0, 1);
     lcd_write("(1103-19854):");
-    lcd_write( itoa(param_fcutoff, buffer, 10));
+    lcd_write( itoa(param_fcutoff, buffer, 10) );
 
     if (hid_get(&msg))
     {

@@ -145,8 +145,7 @@ void audio_init()
 
   mod_vol_init();
   mod_echo_init();
-  mod_filter_init();
-}
+  }
 
 
 
