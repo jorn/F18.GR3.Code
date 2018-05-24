@@ -33,9 +33,9 @@
 
 void mod_vol_effekt( fp_sample_t *in, fp_sample_t *out);
 /*****************************************************************************
- *   Input    :
- *   Output   :
- *   Function :
+ *   Input    : Pointer to input and return sample of type sample_t.
+ *   Output   : -
+ *   Function : Modify amplitude of sample.
  ******************************************************************************/
 
 void mod_vol_init( void );
@@ -49,7 +49,7 @@ BOOLEAN mod_vol_setvol();
 /*****************************************************************************
  *   Input    : 
  *   Output   : 
- *   Function : 
+ *   Function : Handles changing the value used by "mod_vol_effekt" to modify amplitude.
  ******************************************************************************/
 
 

@@ -34,9 +34,9 @@
 
 void mod_reverb_effekt( fp_sample_t *in, fp_sample_t *out);
 /*****************************************************************************
- *   Input    :
- *   Output   :
- *   Function :
+ *   Input    : Pointer to input and return sample of type sample_t.
+ *   Output   : -
+ *   Function : Create reverb effect from supplied sample.
  ******************************************************************************/
 
 void mod_reverb_init( void );
@@ -50,14 +50,14 @@ BOOLEAN mod_reverb_setgain();
 /*****************************************************************************
  *    Input    : -
  *    Output   : -
- *    Function :
+ *    Function : Handles changing the gain value used by "mod_reverb_effekt".
  *******************************************************************************/
 
 BOOLEAN mod_reverb_setdelay();
 /*****************************************************************************
  *    Input    : -
  *    Output   : -
- *    Function :
+ *    Function : Handles changing the delay value used by "mod_reverb_effekt".
  *******************************************************************************/
 
 /****************************** End Of Module *******************************/

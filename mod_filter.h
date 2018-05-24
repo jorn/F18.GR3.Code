@@ -38,7 +38,7 @@
 
 void mod_filter(fp_sample_t *in, fp_sample_t *out);
 /*****************************************************************************
-*   Input    : -
+*   Input    : Pointer to input and return sample of type sample_t.
 *   Output   : -
 *   Function : Performs a filtering on the input.
 *****************************************************************************/

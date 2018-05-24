@@ -49,7 +49,7 @@ void re_buffer_put_z(fp_sample_t *data, uint16_t z);
 /*****************************************************************************
  *    Input    : Data to be put in buffer, and number of drawers ahead of pointer.
  *    Output   :
- *    Function : Inserts data into the buffer Z ahead of the pointer.
+ *    Function : Inserts data into the buffer Z drawers ahead of the pointer.
  *******************************************************************************/
 
 #endif /* REBUF_H_ */
