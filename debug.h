@@ -30,8 +30,6 @@
 #define       DEBUG_P0        0x1
 #define       DEBUG_P1        0x2
 
-
-
 /********************** External declaration of Variables ******************/
 
 /*****************************   Constants   *******************************/

@@ -60,7 +60,18 @@ typedef struct hid_msg {
 
 /*************************  Function interfaces ****************************/
 BaseType_t hid_init();
+/*****************************************************************************
+ *    Input    : -
+ *    Output   : -
+ *    Function : Initilize the HID system
+ *******************************************************************************/
+
 BaseType_t hid_get(hid_msg_t *msg );
+/*****************************************************************************
+ *    Input    : Pointer to message structure of type hid_msg_t
+ *    Output   : FreeRTOS boolean type
+ *    Function : Get the next HID message from the HID queue
+ *******************************************************************************/
 
 
 /****************************** End Of Module *******************************/

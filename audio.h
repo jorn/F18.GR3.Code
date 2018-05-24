@@ -31,17 +31,39 @@
 
 /*************************  Function interfaces ****************************/
 void audio_init();
+/*****************************************************************************
+ *    Input    : -
+ *    Output   : -
+ *    Function : Init the audio module and configures the default setting
+ *******************************************************************************/
+
 uint8_t get_cpu_load();
+/*****************************************************************************
+ *    Input    : -
+ *    Output   : % Audio CPU load
+ *    Function : Get %Audio CPU load - based on ticks used by sample handler
+ *******************************************************************************/
+
 void audio_pwm_on();
+/*****************************************************************************
+ *    Input    : -
+ *    Output   : -
+ *    Function : Turns PWM audio out on
+ *******************************************************************************/
+
 void audio_pwm_off();
+/*****************************************************************************
+ *    Input    : -
+ *    Output   : -
+ *    Function : Turns PWM audio out off
+ *******************************************************************************/
+
 float get_sample(uint16_t offset);
 /*****************************************************************************
  *    Input    : The sample offset
  *    Output   : The sample at OFFSET from HEAD sample
  *    Function : Returns the sample OFFSET from HEAD sample
  *******************************************************************************/
-void echo_effect(float decay, uint16_t delay);
-void reverb_effect(float decay1, float decay2, uint16_t delay);
 
 /****************************** End Of Module *******************************/
 #endif /* AUDIO_H_ */

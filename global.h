@@ -25,15 +25,6 @@
 #define MS_PER_TICK           1             // Millisec per Ticks
 #define CPU_MULTIPLEX         80            // CPU cycles per microsec
 
-// UART
-#define UART_BAUDRATE         19200         // UART baudrate
-#define UART_DATABITS         8             // UART databits
-#define UART_STOPBITS         1             // UART stopbits
-#define UART_PARITY           'n'           // UART no-parity
-
-// Files
-#define   COM1                0             // UART file to use
-
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define IDLE_PRIO 0
 #define LOW_PRIO  1
