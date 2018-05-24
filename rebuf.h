@@ -12,7 +12,7 @@
  * Date    Id    Change
  * YYMMDD
  * --------------------
- * Apr 19, 2018	jorn    Module created.
+ * Apr 20, 2018	SoF    Module created.
  *
  *****************************************************************************/
 
@@ -33,23 +33,23 @@
 
 void re_buffer_get(fp_sample_t * data);
 /*****************************************************************************
- *    Input    : The buffer data is to be got from.
+ *    Input    : The buffer data to be got from buffer.
  *    Output   : 
  *    Function : Gets data from buffer.
  *******************************************************************************/
 
 void re_buffer_get_out(fp_sample_t *data);
 /*****************************************************************************
- *    Input    : The buffer data is to be got from.
+ *    Input    : The buffer data to be got from buffer.
  *    Output   :
- *    Function : Gets data from buffer, zeroes the drawer.
+ *    Function : Gets data from buffer, clears drawer, then increments pointer.
  *******************************************************************************/
 
 void re_buffer_put_z(fp_sample_t *data, uint16_t z);
 /*****************************************************************************
- *    Input    : The buffer data should be put into and the data to put in.
+ *    Input    : Data to be put in buffer, and number of drawers ahead of pointer.
  *    Output   :
- *    Function : Inserts data into the buffer.
+ *    Function : Inserts data into the buffer Z ahead of the pointer.
  *******************************************************************************/
 
 #endif /* REBUF_H_ */
