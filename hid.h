@@ -52,9 +52,9 @@
 
 /********************** External declaration of Variables ******************/
 typedef struct hid_msg {
-  uint8_t   ch;
-  uint8_t   function;
-  uint8_t   event;
+  uint8_t   ch;             // ASCII char kode
+  uint8_t   function;       // Funktionskode defineret af HID_FUNC_xxx
+  uint8_t   event;          // Eventkode definederet af HID_EVENT_xxx
 } hid_msg_t;
 /*****************************   Constants   *******************************/
 
